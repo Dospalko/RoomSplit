@@ -1,12 +1,3 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
 model Room {
   id      Int      @id @default(autoincrement())
   name    String   @unique
@@ -19,12 +10,28 @@ model Member {
   name    String
   roomId  Int
   room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  shares  Share[]
 }
 
 model Bill {
+  id           Int      @id @default(autoincrement())
+  title        String
+  amountCents  Int
+  period       String   // "YYYY-MM"
+  roomId       Int
+  room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  shares       Share[]
+  createdAt    DateTime @default(now())
+}
+
+model Share {
   id          Int     @id @default(autoincrement())
-  title       String
+  billId      Int
+  bill        Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  memberId    Int
+  member      Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
   amountCents Int
-  roomId      Int
-  room        Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  paid        Boolean @default(false)
+
+  @@unique([billId, memberId])
 }
