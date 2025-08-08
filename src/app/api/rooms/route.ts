@@ -6,9 +6,14 @@ export async function GET() {
   return NextResponse.json(rooms);
 }
 
+import { z } from "zod";
+const RoomCreate = z.object({ name: z.string().min(1).max(80) });
+
 export async function POST(req: Request) {
-  const { name } = await req.json();
-  if (!name) return NextResponse.json({ error: "Name required" }, { status: 400 });
-  const room = await prisma.room.create({ data: { name } });
-  return NextResponse.json(room);
+  const json = await req.json().catch(() => null);
+  const parsed = RoomCreate.safeParse(json);
+  if (!parsed.success) return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+
+  const room = await prisma.room.create({ data: { name: parsed.data.name.trim() } });
+  return NextResponse.json(room, { status: 201 });
 }

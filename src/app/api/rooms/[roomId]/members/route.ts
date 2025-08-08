@@ -9,10 +9,16 @@ export async function GET(_req: Request, { params }: Params) {
   return NextResponse.json(members);
 }
 
+
+import { z } from "zod";
+const MemberCreate = z.object({ name: z.string().min(1).max(80) });
+
 export async function POST(req: Request, { params }: Params) {
   const roomId = Number(params.roomId);
-  const { name } = await req.json();
-  if (!name?.trim()) return NextResponse.json({ error: "name required" }, { status: 400 });
-  const member = await prisma.member.create({ data: { name: name.trim(), roomId }});
+  const json = await req.json().catch(() => null);
+  const parsed = MemberCreate.safeParse(json);
+  if (!parsed.success) return NextResponse.json({ error: "Invalid" }, { status: 400 });
+
+  const member = await prisma.member.create({ data: { name: parsed.data.name.trim(), roomId }});
   return NextResponse.json(member, { status: 201 });
 }
