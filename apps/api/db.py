@@ -9,4 +9,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
     pass
-    
+
+from contextlib import contextmanager
+
+@contextmanager
+def get_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

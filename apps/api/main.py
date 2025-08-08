@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 app = FastAPI(title="FairShare API")
+from routers import rooms as rooms_router
+app.include_router(rooms_router.router)
 
 app.add_middleware(
     CORSMiddleware,
