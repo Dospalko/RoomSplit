@@ -8,16 +8,16 @@ export async function GET(_req: Request, { params }: Params) {
   const bills = await prisma.bill.findMany({
     where: { roomId },
     orderBy: { id: "desc" },
-    include: { shares: true },
+    include: { shares: true }, // nič viac, žiadna ďalšia zátvorka
   });
   return NextResponse.json(bills);
 }
 
 export async function POST(req: Request, { params }: Params) {
   const roomId = Number(params.roomId);
-  const { title, amount, period } = await req.json() as { title: string; amount: number; period: string };
+  const { title, amount, period } = await req.json();
 
-  if (!title?.trim() || !Number.isFinite(amount) || !period?.match(/^\d{4}-\d{2}$/)) {
+  if (!title?.trim() || !Number.isFinite(amount) || !/^\d{4}-\d{2}$/.test(period ?? "")) {
     return NextResponse.json({ error: "title, amount, period(YYYY-MM) required" }, { status: 400 });
   }
 
@@ -38,6 +38,10 @@ export async function POST(req: Request, { params }: Params) {
     return b;
   });
 
-  const out = await prisma.bill.findUnique({ where: { id: bill.id }, include: { shares: true }});
+  const out = await prisma.bill.findUnique({
+    where: { id: bill.id },
+    include: { shares: true },
+  });
+
   return NextResponse.json(out, { status: 201 });
 }
