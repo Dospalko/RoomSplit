@@ -113,6 +113,7 @@ export default function Home() {
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {rooms.map((r) => (
               <li key={r.id} className="group relative rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md transition overflow-hidden">
+                <Link href={`/rooms/${r.id}`} className="absolute inset-0" aria-label={`Open ${r.name}`}></Link>
                 <div className="flex flex-col gap-3 min-w-0 relative z-10">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center text-white text-sm font-semibold shadow-inner">
