@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 
@@ -35,7 +36,7 @@ export async function POST(req: Request, { params }: Params) {
   const base = Math.floor(amountCents / members.length);
   let remainder = amountCents - base * members.length;
 
-  const bill = await prisma.$transaction(async (tx) => {
+  const bill = await prisma.$transaction(async (tx: { bill: { create: (arg0: { data: { roomId: number; title: string; amountCents: number; period: string; }; }) => any; }; share: { create: (arg0: { data: { billId: any; memberId: any; amountCents: number; }; }) => any; }; }) => {
     const b = await tx.bill.create({ data: { roomId, title: parsed.data.title.trim(), amountCents, period: parsed.data.period }});
     for (const m of members) {
       const extra = remainder > 0 ? 1 : 0;
