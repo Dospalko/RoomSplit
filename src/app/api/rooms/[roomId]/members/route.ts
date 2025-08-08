@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 
-type Params = { params: { roomId: string } };
+type Params = { params: Promise<{ roomId: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
-  const roomId = Number(params.roomId);
+export async function GET(_req: Request, ctx: Params) {
+  const { roomId: roomIdStr } = await ctx.params;
+  const roomId = Number(roomIdStr);
   const members = await prisma.member.findMany({ where: { roomId }, orderBy: { id: "asc" }});
   return NextResponse.json(members);
 }
@@ -13,8 +14,9 @@ export async function GET(_req: Request, { params }: Params) {
 import { z } from "zod";
 const MemberCreate = z.object({ name: z.string().min(1).max(80) });
 
-export async function POST(req: Request, { params }: Params) {
-  const roomId = Number(params.roomId);
+export async function POST(req: Request, ctx: Params) {
+  const { roomId: roomIdStr } = await ctx.params;
+  const roomId = Number(roomIdStr);
   const json = await req.json().catch(() => null);
   const parsed = MemberCreate.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "Invalid" }, { status: 400 });

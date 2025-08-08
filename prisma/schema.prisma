@@ -27,10 +27,18 @@ model Bill {
   title        String
   amountCents  Int
   period       String   // "YYYY-MM"
+  rule         SplitRule @default(EQUAL)
+  meta         Json?
   roomId       Int
   room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   shares       Share[]
   createdAt    DateTime @default(now())
+}
+
+enum SplitRule {
+  EQUAL
+  PERCENT
+  WEIGHT
 }
 
 model Share {

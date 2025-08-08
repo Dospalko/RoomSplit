@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 // Domain types
 type Member = { id: number; name: string };
 type Share = { id: number; memberId: number; amountCents: number; paid: boolean; member?: { id: number; name: string } };
-type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[] };
+type BillRule = 'EQUAL' | 'PERCENT' | 'WEIGHT';
+type BillMeta = { percents?: Record<string, number>; weights?: Record<string, number> } | null;
+type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[]; rule?: BillRule; meta?: BillMeta };
 
 const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
 
@@ -21,6 +23,9 @@ export default function RoomDetail() {
   const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
   const [amount, setAmount] = useState("80");
   const [summary, setSummary] = useState<{ period: string; totalCents: number; perMember: Record<string, { name: string; cents: number }> } | null>(null);
+  const [rule, setRule] = useState<BillRule>('EQUAL');
+  const [percentMeta, setPercentMeta] = useState<Record<number, string>>({});
+  const [weightMeta, setWeightMeta] = useState<Record<number, string>>({});
 
   // Derived maps & aggregates
   const memberNameById = useMemo(() => members.reduce<Record<number, string>>((acc, m) => { acc[m.id] = m.name; return acc; }, {}), [members]);
@@ -81,7 +86,38 @@ export default function RoomDetail() {
     e.preventDefault();
     const amountNum = Number(amount);
     if (!title.trim() || !amountNum || !period.match(/^\d{4}-\d{2}$/)) return;
-    await fetch(`/api/rooms/${rid}/bills`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title.trim(), amount: amountNum, period }) });
+  let meta: BillMeta = null;
+    if (rule === 'PERCENT') {
+      // Build percents map, validate sum ~ 100
+      const percents: Record<number, number> = {};
+      let sum = 0;
+      for (const m of members) {
+        const v = Number(percentMeta[m.id] || 0);
+        if (v < 0) return;
+        percents[m.id] = v;
+        sum += v;
+      }
+      if (Math.abs(sum - 100) > 0.01) {
+        alert('Percents must sum to 100');
+        return;
+      }
+      meta = { percents };
+    } else if (rule === 'WEIGHT') {
+      const weights: Record<number, number> = {};
+      let sum = 0;
+      for (const m of members) {
+        const v = Number(weightMeta[m.id] || 0);
+        if (v < 0) return;
+        weights[m.id] = v;
+        sum += v;
+      }
+      if (sum <= 0) {
+        alert('Total weight must be > 0');
+        return;
+      }
+      meta = { weights };
+    }
+    await fetch(`/api/rooms/${rid}/bills`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title.trim(), amount: amountNum, period, rule, meta }) });
     load();
   };
 
@@ -221,9 +257,58 @@ export default function RoomDetail() {
                   <label className="block text-xs font-medium mb-1 text-neutral-600 dark:text-neutral-400">Amount (€)</label>
                   <input className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="80" />
                 </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-neutral-600 dark:text-neutral-400">Rule</label>
+                  <select value={rule} onChange={(e)=>setRule(e.target.value as BillRule)} className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="EQUAL">Equal</option>
+                    <option value="PERCENT">Percent</option>
+                    <option value="WEIGHT">Weight</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2 space-y-3">
+                  {rule === 'PERCENT' && (
+                    <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3 bg-white/50 dark:bg-neutral-950/30">
+                      <div className="text-[11px] uppercase tracking-wide font-medium text-neutral-500 dark:text-neutral-400 mb-2">Percents (sum must be 100)</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {members.map(m => (
+                          <label key={m.id} className="flex items-center gap-2 text-xs">
+                            <span className="truncate flex-1">{m.name}</span>
+                            <input
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              value={percentMeta[m.id] ?? ''}
+                              onChange={(e)=> setPercentMeta(p => ({ ...p, [m.id]: e.target.value }))}
+                              className="w-20 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"/>
+                            <span className="text-neutral-500">%</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {rule === 'WEIGHT' && (
+                    <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3 bg-white/50 dark:bg-neutral-950/30">
+                      <div className="text-[11px] uppercase tracking-wide font-medium text-neutral-500 dark:text-neutral-400 mb-2">Weights (relative importance)</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {members.map(m => (
+                          <label key={m.id} className="flex items-center gap-2 text-xs">
+                            <span className="truncate flex-1">{m.name}</span>
+                            <input
+                              type="number"
+                              min={0}
+                              step="1"
+                              value={weightMeta[m.id] ?? ''}
+                              onChange={(e)=> setWeightMeta(p => ({ ...p, [m.id]: e.target.value }))}
+                              className="w-20 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"/>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="sm:col-span-2">
                   <button type="submit" className="w-full rounded-lg py-2.5 text-sm font-medium bg-gradient-to-br from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 text-white dark:text-neutral-900 shadow hover:shadow-md active:scale-[.985] transition">
-                    Create & split equally
+                    Create ({rule.toLowerCase()}) split
                   </button>
                 </div>
               </form>
