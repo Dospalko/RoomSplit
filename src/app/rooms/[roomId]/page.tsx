@@ -100,6 +100,11 @@ export default function RoomDetail() {
     await fetch(`/api/rooms/${rid}/bills/${billId}`, { method: 'DELETE' });
     load();
   };
+  const deleteRoom = async () => {
+    if (!confirm("Delete entire room (irreversible)?")) return;
+    await fetch(`/api/rooms?id=${rid}`, { method: 'DELETE' });
+    window.location.href = '/';
+  };
 
   // UI helpers
   const statCard = (label: string, value: string, extra?: string, accent?: string) => (
@@ -118,6 +123,9 @@ export default function RoomDetail() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Room #{rid}</h1>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={deleteRoom} className="text-xs rounded-md border border-red-300/50 dark:border-red-700/40 text-red-600 dark:text-red-400 px-3 py-1 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition">Delete room</button>
+            </div>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
               Sleduj členov, vytváraj účty a označuj platby. Elegantné rozdelenie nákladov v reálnom čase.
             </p>

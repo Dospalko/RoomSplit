@@ -30,6 +30,12 @@ export default function Home() {
     }
   };
 
+  const deleteRoom = async (id: number) => {
+    if (!confirm("Delete this room and all its data?")) return;
+    await fetch(`/api/rooms?id=${id}`, { method: 'DELETE' });
+    load();
+  };
+
   const stats = useMemo(() => ({ count: rooms.length }), [rooms]);
 
   return (
@@ -115,17 +121,24 @@ export default function Home() {
               <li key={r.id} className="group relative rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md transition overflow-hidden">
                 <Link href={`/rooms/${r.id}`} className="absolute inset-0" aria-label={`Open ${r.name}`}></Link>
                 <div className="flex flex-col gap-3 min-w-0 relative z-10">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center text-white text-sm font-semibold shadow-inner">
-                      {r.name.slice(0,2).toUpperCase()}
+                  <div className="flex items-start gap-3 justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center text-white text-sm font-semibold shadow-inner">
+                        {r.name.slice(0,2).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold tracking-tight text-neutral-800 dark:text-neutral-100 truncate">{r.name}</h3>
+                        <div className="text-[11px] text-neutral-500 dark:text-neutral-400">ID {r.id}</div>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <h3 className="font-semibold tracking-tight text-neutral-800 dark:text-neutral-100 truncate">{r.name}</h3>
-                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">ID {r.id}</div>
-                    </div>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteRoom(r.id); }}
+                      className="text-[11px] text-neutral-400 hover:text-red-600 transition px-1 py-0.5 rounded"
+                      title="Delete room"
+                    >✕</button>
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <Link href={`/rooms/${r.id}`} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
+                    <Link href={`/rooms/${r.id}`} className="relative inline-flex items-center gap-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" onClick={(e)=>e.stopPropagation()}>
                       Open
                     </Link>
                     <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">Active</span>
