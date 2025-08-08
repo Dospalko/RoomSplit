@@ -22,3 +22,5 @@ export async function POST(req: Request, { params }: Params) {
   const member = await prisma.member.create({ data: { name: parsed.data.name.trim(), roomId }});
   return NextResponse.json(member, { status: 201 });
 }
+
+// Individual member deletion lives in /api/rooms/[roomId]/members/[memberId]

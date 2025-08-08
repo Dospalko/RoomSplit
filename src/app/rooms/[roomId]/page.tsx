@@ -90,6 +90,17 @@ export default function RoomDetail() {
     load();
   };
 
+  const deleteMember = async (memberId: number) => {
+    if (!confirm("Delete member? Their shares will also be removed.")) return;
+    await fetch(`/api/rooms/${rid}/members/${memberId}`, { method: 'DELETE' });
+    load();
+  };
+  const deleteBill = async (billId: number) => {
+    if (!confirm("Delete bill and all its shares?")) return;
+    await fetch(`/api/rooms/${rid}/bills/${billId}`, { method: 'DELETE' });
+    load();
+  };
+
   // UI helpers
   const statCard = (label: string, value: string, extra?: string, accent?: string) => (
     <div className={`relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-sm p-4 shadow-sm group`}>      
@@ -172,7 +183,10 @@ export default function RoomDetail() {
                         </div>
                         <span className="truncate font-medium text-neutral-800 dark:text-neutral-100">{m.name}</span>
                       </div>
-                      <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ml-3 shrink-0 ${balance>0 ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"}`}>{badge}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full ml-3 shrink-0 ${balance>0 ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"}`}>{badge}</span>
+                        <button onClick={() => deleteMember(m.id)} className="opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-600 transition text-xs px-1" title="Delete member">✕</button>
+                      </div>
                     </li>
                   );
                 })}
@@ -251,6 +265,9 @@ export default function RoomDetail() {
                           <div className="h-1.5 w-full rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
                             <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all" style={{ width: `${Math.min(100, Math.round(ratio*100))}%` }} />
                           </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <button onClick={() => deleteBill(b.id)} className="text-xs text-neutral-400 hover:text-red-600 transition" title="Delete bill">Delete</button>
                         </div>
                       </div>
                       <ul className="mt-5 grid md:grid-cols-2 gap-2">
