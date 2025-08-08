@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fairshare
+      POSTGRES_PASSWORD: fairshare
+      POSTGRES_DB: fairshare
+    ports: ["5432:5432"]
+    volumes: [db_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fairshare"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  cache:
+    image: redis:7
+    ports: ["6379:6379"]
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [minio_data:/data]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    env_file:
+      - ../apps/api/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports: ["8000:8000"]
+    command: ["./uvicorn_start.sh"]
+    volumes:
+      - ../apps/api:/app
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../apps/worker
+      dockerfile: Dockerfile
+    depends_on: [cache]
+    command: ["./worker_start.sh"]
+    volumes:
+      - ../apps/worker:/app
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on: [api]
+    ports: ["3000:3000"]
+    command: ["pnpm","dev","-p","3000"]
+    volumes:
+      - ../apps/web:/app
+      - web_node_modules:/app/node_modules
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  minio_data:
+  web_node_modules:
