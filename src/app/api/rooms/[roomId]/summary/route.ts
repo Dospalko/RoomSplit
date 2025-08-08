@@ -1,26 +1,43 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import { prisma } from "@/server/db";
+import { prisma } from '@/server/db';
 
-type Params = { params: { roomId: string } };
+// /api/rooms/[roomId]/summary?period=YYYY-MM
+// Response: { period, totalCents, perMember: { [memberId]: { name, cents } } }
 
-export async function GET(req: Request, { params }: Params) {
-  const roomId = Number(params.roomId);
+const PERIOD_RE = /^\d{4}-\d{2}$/;
+
+export async function GET(req: Request, ctx: { params: Promise<{ roomId: string }> }) {
+  const { roomId: roomIdStr } = await ctx.params;
+  const roomId = Number(roomIdStr);
+  if (!Number.isFinite(roomId)) return NextResponse.json({ error: 'invalid room id' }, { status: 400 });
+
   const { searchParams } = new URL(req.url);
-  const period = searchParams.get("period") || new Date().toISOString().slice(0,7);
+  const period = searchParams.get('period') || '';
+  if (!PERIOD_RE.test(period)) return NextResponse.json({ error: 'invalid period' }, { status: 400 });
 
+  // Fetch members for name mapping
+  const members = await prisma.member.findMany({ where: { roomId }, orderBy: { id: 'asc' } });
+  const nameById = Object.fromEntries(members.map((m: { id: number; name: string }) => [m.id, m.name]));
+
+  // Fetch bills for this period with shares
   const bills = await prisma.bill.findMany({
     where: { roomId, period },
-    include: { shares: { include: { member: true } } },
+    include: { shares: true },
   });
 
-  const totalCents = bills.reduce((acc: any, b: { amountCents: any; }) => acc + b.amountCents, 0);
-  const perMember: Record<number, { name: string; cents: number }> = {};
+  let totalCents = 0;
+  const perMember: Record<string, { name: string; cents: number }> = {};
+  for (const m of members) perMember[String(m.id)] = { name: m.name, cents: 0 };
+
   for (const b of bills) {
+    totalCents += b.amountCents;
     for (const s of b.shares) {
-      const entry = perMember[s.memberId] ||= { name: s.member?.name ?? `Member ${s.memberId}`, cents: 0 };
+      const key = String(s.memberId);
+      const entry = perMember[key] || { name: nameById[s.memberId] || `Member ${s.memberId}`, cents: 0 };
       entry.cents += s.amountCents;
+      perMember[key] = entry;
     }
   }
+
   return NextResponse.json({ period, totalCents, perMember });
 }
