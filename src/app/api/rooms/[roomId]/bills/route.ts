@@ -8,10 +8,13 @@ export async function GET(_req: Request, { params }: Params) {
   const bills = await prisma.bill.findMany({
     where: { roomId },
     orderBy: { id: "desc" },
-    include: { shares: true }, // nič viac, žiadna ďalšia zátvorka
+    include: {
+      shares: { include: { member: true } }, // ⬅ mená členov
+    },
   });
   return NextResponse.json(bills);
 }
+
 
 export async function POST(req: Request, { params }: Params) {
   const roomId = Number(params.roomId);

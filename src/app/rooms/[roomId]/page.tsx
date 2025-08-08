@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
 
 type Member = { id: number; name: string };
-type Share = { id: number; memberId: number; amountCents: number; paid: boolean };
+type Share = { id: number; memberId: number; amountCents: number; paid: boolean; member?: { id: number; name: string } };
 type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[] };
 
 const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
@@ -19,18 +19,28 @@ export default function RoomDetail() {
   const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
   const [amount, setAmount] = useState("80");
 
-  const load = async () => {
+  // Map for quick id -> name lookup (memoized)
+  const memberNameById = useMemo(() => {
+    const map: Record<number, string> = {};
+    for (const m of members) map[m.id] = m.name;
+    return map;
+  }, [members]);
+
+  // Replace previous load with memoized version
+  const load = useCallback(async () => {
+    if (!Number.isFinite(rid)) return;
     const [m, b] = await Promise.all([
       fetch(`/api/rooms/${rid}/members`).then((r) => r.json()),
       fetch(`/api/rooms/${rid}/bills`).then((r) => r.json()),
     ]);
     setMembers(m);
     setBills(b);
-  };
-
-  useEffect(() => {
-    if (Number.isFinite(rid)) load();
   }, [rid]);
+
+  // Update useEffect to depend on load
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const addMember = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,26 +161,29 @@ export default function RoomDetail() {
                   </div>
                 </div>
                 <ul className="mt-2 grid sm:grid-cols-2 gap-2">
-                  {b.shares.map((s) => (
-                    <li
-                      key={s.id}
-                      className="text-sm flex items-center justify-between border rounded px-3 py-2 border-neutral-200 dark:border-neutral-800"
-                    >
-                      <span>
-                        Member {s.memberId}: {fmt(s.amountCents)}
-                      </span>
-                      {s.paid ? (
-                        <span className="text-green-600">PAID</span>
-                      ) : (
-                        <button
-                          onClick={() => markPaid(s.id, true)}
-                          className="rounded px-3 py-1 border text-xs border-neutral-300 dark:border-neutral-700"
-                        >
-                          mark paid
-                        </button>
-                      )}
-                    </li>
-                  ))}
+                  {b.shares.map((s) => {
+                    const displayName = s.member?.name || memberNameById[s.memberId] || `Member ${s.memberId}`;
+                    return (
+                      <li
+                        key={s.id}
+                        className="text-sm flex items-center justify-between border rounded px-3 py-2 border-neutral-200 dark:border-neutral-800"
+                      >
+                        <span>
+                          {displayName}: {fmt(s.amountCents)}
+                        </span>
+                        {s.paid ? (
+                          <span className="text-green-600">PAID</span>
+                        ) : (
+                          <button
+                            onClick={() => markPaid(s.id, true)}
+                            className="rounded px-3 py-1 border text-xs border-neutral-300 dark:border-neutral-700"
+                          >
+                            mark paid
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </li>
             ))}
