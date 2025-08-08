@@ -20,6 +20,7 @@ export default function RoomDetail() {
   const [title, setTitle] = useState("Electricity");
   const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
   const [amount, setAmount] = useState("80");
+  const [summary, setSummary] = useState<{ period: string; totalCents: number; perMember: Record<string, { name: string; cents: number }> } | null>(null);
 
   // Derived maps & aggregates
   const memberNameById = useMemo(() => members.reduce<Record<number, string>>((acc, m) => { acc[m.id] = m.name; return acc; }, {}), [members]);
@@ -51,13 +52,19 @@ export default function RoomDetail() {
   // Data loader
   const load = useCallback(async () => {
     if (!Number.isFinite(rid)) return;
-    const [m, b] = await Promise.all([
-      fetch(`/api/rooms/${rid}/members`).then((r) => r.json()),
-      fetch(`/api/rooms/${rid}/bills`).then((r) => r.json()),
-    ]);
-    setMembers(m);
-    setBills(b);
-  }, [rid]);
+    try {
+      const [m, b, s] = await Promise.all([
+        fetch(`/api/rooms/${rid}/members`).then((r) => r.json()),
+        fetch(`/api/rooms/${rid}/bills`).then((r) => r.json()),
+        fetch(`/api/rooms/${rid}/summary?period=${period}`).then((r) => r.json()).catch(() => null),
+      ]);
+      setMembers(m);
+      setBills(b);
+      setSummary(s && !s.error ? s : null);
+    } catch {
+      // swallow for now
+    }
+  }, [rid, period]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -103,6 +110,18 @@ export default function RoomDetail() {
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
               Sleduj členov, vytváraj účty a označuj platby. Elegantné rozdelenie nákladov v reálnom čase.
             </p>
+            {summary && (
+              <div className="mt-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm px-4 py-3 text-xs md:text-sm flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                  Period: <b>{summary.period}</b> • Total: <b>{fmt(summary.totalCents)}</b>
+                </span>
+                <span className="text-neutral-500 dark:text-neutral-400 flex flex-wrap gap-x-3 gap-y-1">
+                  {Object.values(summary.perMember).map((pm) => (
+                    <span key={pm.name}>{pm.name}: {fmt(pm.cents)}</span>
+                  ))}
+                </span>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-[260px] md:min-w-[520px]">
             {statCard("Members", String(members.length))}
