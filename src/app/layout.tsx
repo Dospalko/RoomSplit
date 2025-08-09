@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Space_Mono, Roboto_Mono } from 'next/font/google';
-import ConditionalHeader from '@/components/ConditionalHeader';
+import ConditionalHeader from '../components/ConditionalHeader';
 import Footer from '@/components/Footer';
 
 const spaceMono = Space_Mono({

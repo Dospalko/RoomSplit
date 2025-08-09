@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
+import ExpenseAnalytics from "@/components/ExpenseAnalytics";
 
 // Domain types
 type Member = { id: number; name: string };
@@ -26,6 +27,7 @@ export default function RoomDetail() {
   const [rule, setRule] = useState<BillRule>('EQUAL');
   const [percentMeta, setPercentMeta] = useState<Record<number, string>>({});
   const [weightMeta, setWeightMeta] = useState<Record<number, string>>({});
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // Derived maps & aggregates
   const memberNameById = useMemo(() => members.reduce<Record<number, string>>((acc, m) => { acc[m.id] = m.name; return acc; }, {}), [members]);
@@ -183,13 +185,74 @@ export default function RoomDetail() {
             {statCard("Bills", String(bills.length))}
             {statCard("Outstanding", fmt(totals.outstanding), `${(totals.paidShares && Math.round((totals.paid / (totals.total||1))*100)) || 0}% paid`, "from-amber-100/70 dark:from-amber-500/20")}
             {statCard("Total", fmt(totals.total), `${fmt(totals.paid)} paid`, "from-emerald-100/70 dark:from-emerald-500/20")}
+            {bills.length > 0 && (
+              <div className="sm:col-span-2 md:col-span-4 mt-2">
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className="w-full group relative overflow-hidden rounded-xl border border-blue-200/50 dark:border-blue-700/40 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 px-4 py-3 text-sm font-medium text-blue-700 dark:text-blue-300 hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900/50 dark:hover:to-purple-900/50 transition-all duration-300 transform hover:scale-[1.02]"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>View Analytics Dashboard</span>
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="absolute -right-32 -top-32 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-500/10 blur-3xl pointer-events-none -z-10" />
         <div className="absolute -left-24 -bottom-24 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-400/10 to-cyan-500/10 blur-3xl pointer-events-none -z-10" />
       </div>
 
-      {/* Grid Layout */}
+      {/* Tab Navigation */}
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-4 shadow-sm mb-8">
+        <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
+              activeTab === 'overview'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+            }`}
+          >
+            <div className="flex items-center gap-2 justify-center">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Overview
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
+              activeTab === 'analytics'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+            }`}
+          >
+            <div className="flex items-center gap-2 justify-center">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Analytics
+              {bills.length > 0 && (
+                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+                  {bills.length}
+                </span>
+              )}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' ? (
+        /* Overview Tab - Original Content */
+        <>
+          {/* Grid Layout */}
       <div className="grid lg:grid-cols-12 gap-8">
         {/* Left column: Members + New Bill */}
         <div className="space-y-8 lg:col-span-4 order-2 lg:order-1">
@@ -396,6 +459,11 @@ export default function RoomDetail() {
           )}
         </div>
       </div>
+        </>
+      ) : (
+        /* Analytics Tab */
+        <ExpenseAnalytics members={members} bills={bills} />
+      )}
     </div>
   );
 }
