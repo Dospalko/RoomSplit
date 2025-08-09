@@ -82,13 +82,7 @@ export default function HowItWorksSection() {
         <div className="grid md:grid-cols-3 gap-12 max-w-7xl mx-auto">
           {steps.map((item, index) => (
             <div key={index} className="group relative">
-              {/* Connection line for desktop */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-24 left-full w-12 h-0.5 bg-gradient-to-r from-slate-300 to-transparent dark:from-slate-700 dark:to-transparent z-10 transform translate-x-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-                </div>
-              )}
-              
+             
               {/* Step card */}
               <div className="relative transform hover:-translate-y-4 transition-all duration-700 group-hover:scale-105">
                 {/* Glow effect */}
