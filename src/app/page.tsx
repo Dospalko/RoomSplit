@@ -49,7 +49,7 @@ export default function Home() {
   const deleteRoom = async (id: number) => {
     if (!confirm("Are you sure you want to delete this room? This will delete all associated data.")) return;
     
-    const res = await fetch(`/api/rooms/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/rooms?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       await fetchRooms();
     }
