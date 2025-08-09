@@ -5,9 +5,8 @@ interface HeroProps {
 export default function Hero({ onCreateRoom }: HeroProps) {
   return (
     <header className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-transparent to-indigo-600/10 blur-3xl"></div>
-      <div className="relative pt-20 pb-24 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200/50 dark:border-blue-800/50 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 mb-8 backdrop-blur-sm">
+      <div className="relative pt-20 pb-24 text-center max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-8 backdrop-blur-sm">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -47,10 +46,9 @@ export default function Hero({ onCreateRoom }: HeroProps) {
 
         {/* Floating Demo Cards */}
         <div className="relative max-w-5xl mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 blur-3xl rounded-full"></div>
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="transform rotate-2 hover:rotate-0 transition-transform">
-              <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 p-6 shadow-2xl">
+              <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 p-6 shadow-xl hover:shadow-2xl transition-shadow">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
                     AP
@@ -66,7 +64,7 @@ export default function Hero({ onCreateRoom }: HeroProps) {
             </div>
             
             <div className="transform -rotate-1 hover:rotate-0 transition-transform">
-              <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 p-6 shadow-2xl">
+              <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 p-6 shadow-xl hover:shadow-2xl transition-shadow">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Electricity</span>
@@ -85,7 +83,7 @@ export default function Hero({ onCreateRoom }: HeroProps) {
             </div>
             
             <div className="transform rotate-1 hover:rotate-0 transition-transform">
-              <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 p-6 shadow-2xl">
+              <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 p-6 shadow-xl hover:shadow-2xl transition-shadow">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">A</div>
