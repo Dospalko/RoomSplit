@@ -11,7 +11,7 @@ export default function SimpleHeader() {
       {/* Subtle background glow */}
       <div className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-500/5 via-purple-500/5 to-transparent pointer-events-none z-40" />
       
-      <header className="sticky top-0 z-50 bg-white/85 dark:bg-black/70 backdrop-blur-2xl border-b border-white/20 dark:border-white/10 shadow-lg shadow-black/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-black/70 backdrop-blur-2xl border-b border-white/20 dark:border-white/10 shadow-lg shadow-black/5">
         <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo/Brand with enhanced styling */}
           <Link href="/" className="flex items-center gap-3 group">
