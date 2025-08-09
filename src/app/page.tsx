@@ -82,8 +82,8 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="relative group">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
+          <div className="relative group md:col-span-1 lg:col-span-2">
             <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg transition h-full">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative group">
+          <div className="relative group md:col-span-1 lg:col-span-2">
             <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg transition h-full">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative group">
+          <div className="relative group md:col-span-1 lg:col-span-2">
             <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg transition h-full">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-6 shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,13 +136,13 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
           {[
             { step: "1", title: "Create Room", desc: "Set up a shared space for your group" },
             { step: "2", title: "Add Members & Bills", desc: "Invite people and start tracking expenses" },
             { step: "3", title: "Split & Track", desc: "Choose how to split and mark payments" }
           ].map((item, i) => (
-            <div key={i} className="text-center">
+            <div key={i} className="text-center md:col-span-1 lg:col-span-2">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xl font-bold flex items-center justify-center mx-auto mb-4 shadow-lg">
                 {item.step}
               </div>
@@ -154,26 +154,26 @@ export default function Home() {
       </section>
 
       {/* Quick Stats */}
-      <section className="grid sm:grid-cols-4 gap-5">
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group">
+      <section className="grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-5">
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group sm:col-span-1 lg:col-span-1 xl:col-span-2">
           <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">Your Rooms</div>
           <div className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{stats.count}</div>
           <div className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">Active</div>
           <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-blue-100/60 via-transparent to-transparent dark:from-blue-500/10" />
         </div>
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group">
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group sm:col-span-1 lg:col-span-1 xl:col-span-2">
           <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">Split Methods</div>
           <div className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">3</div>
           <div className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">Equal, Percent, Weight</div>
           <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-emerald-100/60 via-transparent to-transparent dark:from-emerald-500/10" />
         </div>
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group">
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group sm:col-span-1 lg:col-span-1 xl:col-span-2">
           <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">Real-time</div>
           <div className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">✓</div>
           <div className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">Live updates</div>
           <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-amber-100/60 via-transparent to-transparent dark:from-amber-500/10" />
         </div>
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group">
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-5 shadow-sm group sm:col-span-1 lg:col-span-1 xl:col-span-2">
           <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">Free</div>
           <div className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">∞</div>
           <div className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">No limits</div>
@@ -253,7 +253,7 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {rooms.map((r) => (
               <li key={r.id} className="group relative rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm shadow-sm hover:shadow-lg transition overflow-hidden">
                 <Link href={`/rooms/${r.id}`} className="absolute inset-0 z-10" aria-label={`Open ${r.name}`}></Link>
