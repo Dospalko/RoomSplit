@@ -65,7 +65,7 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen    relative" 
+      className="min-h-screen relative" 
     >
       <Hero onCreateRoom={openCreateModal} />
       <StatsSection stats={{ count: rooms.length }} />
@@ -74,7 +74,7 @@ export default function Home() {
       
       {/* Room Management Section */}
       <div className="relative py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="w-full mx-auto px-6 lg:px-8">
           <RoomGrid 
             rooms={rooms}
             onDeleteRoom={deleteRoom}
