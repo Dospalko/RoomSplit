@@ -64,35 +64,24 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 relative">
-      {/* Full-screen fine grid background */}
-      <div className="fixed inset-0 opacity-[0.15] dark:opacity-[0.08] pointer-events-none z-0">
-        <div className="w-full h-full" style={{
-          backgroundImage: `
-            linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '20px 20px'
-        }}></div>
-      </div>
+    <div 
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 relative" 
+ 
+    >
+      <Hero onCreateRoom={openCreateModal} />
+      <StatsSection stats={{ count: rooms.length }} />
+      <FeaturesSection />
+      <HowItWorksSection />
       
-      {/* Content */}
-      <div className="relative z-10">
-        <Hero onCreateRoom={openCreateModal} />
-        <StatsSection stats={{ count: rooms.length }} />
-        <FeaturesSection />
-        <HowItWorksSection />
-        
-        {/* Room Management Section */}
-        <div className="relative py-20 lg:py-32">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <RoomGrid 
-              rooms={rooms}
-              onDeleteRoom={deleteRoom}
-              onCreateRoom={openCreateModal}
-              creating={creating}
-            />
-          </div>
+      {/* Room Management Section */}
+      <div className="relative py-20 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <RoomGrid 
+            rooms={rooms}
+            onDeleteRoom={deleteRoom}
+            onCreateRoom={openCreateModal}
+            creating={creating}
+          />
         </div>
       </div>
 
