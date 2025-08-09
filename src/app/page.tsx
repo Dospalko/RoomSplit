@@ -65,8 +65,7 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 relative" 
- 
+      className="min-h-screen    relative" 
     >
       <Hero onCreateRoom={openCreateModal} />
       <StatsSection stats={{ count: rooms.length }} />

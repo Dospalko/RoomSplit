@@ -5,8 +5,16 @@ export const metadata = { title: "RoomSplit" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="antialiased">
-      <body className="min-h-dvh bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-neutral-950 dark:to-slate-900">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+      <body 
+        className="bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-neutral-950 dark:to-slate-900"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #80808012 1px, transparent 1px),
+            linear-gradient(to bottom, #80808012 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px'
+        }}
+      >
         <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-black/40 border-b border-black/5 dark:border-white/10">
           <div className="mx-auto max-w-7xl px-4 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
