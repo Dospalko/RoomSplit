@@ -6,7 +6,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="space-y-10">
+    <section className="space-y-10 mt-20">
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">How it works</h2>
         <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">

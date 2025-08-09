@@ -40,7 +40,7 @@ export default function FeaturesSection() {
 
   return (
     <section id="features" className="space-y-16">
-      <div className="text-center max-w-4xl mx-auto">
+      <div className="text-center max-w-4xl mt-20 mx-auto">
         <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-6">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
