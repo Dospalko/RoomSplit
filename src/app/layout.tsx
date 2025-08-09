@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Space_Mono, Roboto_Mono } from 'next/font/google';
-import Header from '@/components/Header';
+import ConditionalHeader from '@/components/ConditionalHeader';
 import Footer from '@/components/Footer';
 
 const spaceMono = Space_Mono({
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           backgroundSize: '24px 24px'
         }}
       >
-        <Header />
+        <ConditionalHeader />
    <main className="relative mx-auto max-w-7xl px-4 lg:px-8 py-8">{children}</main>
         <Footer />
       </body>
