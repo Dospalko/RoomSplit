@@ -68,12 +68,18 @@ export default function Home() {
       className="min-h-screen relative" 
     >
       <Hero onCreateRoom={openCreateModal} />
-      <StatsSection stats={{ count: rooms.length }} />
-      <FeaturesSection />
-      <HowItWorksSection />
+      <div id="stats">
+        <StatsSection stats={{ count: rooms.length }} />
+      </div>
+      <div id="features">
+        <FeaturesSection />
+      </div>
+      <div id="how-it-works">
+        <HowItWorksSection />
+      </div>
       
       {/* Room Management Section */}
-      <div className="relative py-20 lg:py-32">
+      <div id="rooms" className="relative py-20 lg:py-32">
         <div className="w-full mx-auto px-6 lg:px-8">
           <RoomGrid 
             rooms={rooms}

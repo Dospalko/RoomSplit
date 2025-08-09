@@ -5,15 +5,36 @@ import { useState, useEffect } from 'react';
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+      setShowScrollTop(scrollY > 400);
     };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const smoothScrollTo = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   return (
     <>
@@ -75,10 +96,10 @@ export default function Header() {
           {/* Navigation with Morphing Indicators */}
           <nav className="hidden lg:flex items-center">
             <div className="relative flex items-center gap-1 bg-white/10 dark:bg-black/20 backdrop-blur-xl rounded-full p-1 border border-white/20 dark:border-white/10">
-              {['Features', 'Rooms', 'About'].map((item) => (
-                <a
+              {['Features', 'Rooms', 'How it works'].map((item) => (
+                <button
                   key={item}
-                  href={`#${item.toLowerCase()}`}
+                  onClick={() => smoothScrollTo(item.toLowerCase().replace(/\s+/g, '-'))}
                   onMouseEnter={() => setActiveNavItem(item)}
                   onMouseLeave={() => setActiveNavItem('')}
                   className={`relative px-6 py-2 text-sm font-medium font-roboto-mono rounded-full transition-all duration-300 ${
@@ -91,7 +112,7 @@ export default function Header() {
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full opacity-90 animate-pulse" />
                   )}
                   <span className="relative z-10">{item}</span>
-                </a>
+                </button>
               ))}
             </div>
           </nav>
@@ -139,18 +160,50 @@ export default function Header() {
       <div className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
         <div className="absolute top-20 left-4 right-4 bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 p-6">
           <nav className="space-y-4">
-            {['Features', 'Rooms', 'About', 'Contact'].map((item) => (
-              <a
+            {['Features', 'Rooms', 'How it works', 'Contact'].map((item) => (
+              <button
                 key={item}
-                href={`#${item.toLowerCase()}`}
-                className="block text-lg font-medium text-slate-800 dark:text-slate-200 hover:text-purple-600 transition-colors duration-300 font-roboto-mono"
+                onClick={() => smoothScrollTo(item.toLowerCase().replace(/\s+/g, '-'))}
+                className="block w-full text-left text-lg font-medium text-slate-800 dark:text-slate-200 hover:text-purple-600 transition-colors duration-300 font-roboto-mono"
               >
                 {item}
-              </a>
+              </button>
             ))}
           </nav>
         </div>
       </div>
+
+      {/* Floating Scroll to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-50 group transition-all duration-500 ${
+          showScrollTop 
+            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+            : 'opacity-0 translate-y-8 pointer-events-none'
+        }`}
+      >
+        <div className="relative">
+          {/* Outer glow ring */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 animate-pulse" />
+          
+          {/* Main button */}
+          <div className="relative w-14 h-14 bg-white/90 dark:bg-black/90 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-full flex items-center justify-center group-hover:bg-white dark:group-hover:bg-black transition-all duration-300 transform group-hover:scale-110 group-active:scale-95">
+            <svg 
+              className="w-6 h-6 text-slate-700 dark:text-slate-300 group-hover:text-purple-600 transition-all duration-300 transform group-hover:-translate-y-0.5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </div>
+          
+          {/* Floating particles around button */}
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-ping" />
+          <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-40 animate-pulse delay-300" />
+          <div className="absolute top-1 -left-2 w-1 h-1 bg-pink-400 rounded-full opacity-50 animate-bounce delay-500" />
+        </div>
+      </button>
     </>
   );
 }
