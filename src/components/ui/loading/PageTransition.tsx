@@ -74,11 +74,11 @@ export default function PageTransition({
     <div className="fixed inset-0 z-50 pointer-events-none">
       {/* Main transition overlay */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"
+        className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-black"
         style={getTransitionStyle()}
       >
         {/* Animated pattern overlay */}
-        <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 opacity-20">
           <div 
             className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] animate-pulse"
             style={{
@@ -89,54 +89,20 @@ export default function PageTransition({
         
         {/* Loading content */}
         <div className="absolute inset-0 flex items-center justify-center text-white">
-          <div className="text-center space-y-4">
-            {/* Animated logo */}
-            <div className="relative mb-6">
+          <div className="text-center">
+            {/* Simple animated icon */}
+            <div className="relative mb-4">
               <div 
-                className="w-20 h-20 mx-auto rounded-full border-4 border-white/30 border-t-white animate-spin"
-                style={{ animationDuration: '1s' }}
+                className="w-16 h-16 mx-auto rounded-full border-2 border-gray-600 border-t-gray-300 animate-spin"
+                style={{ animationDuration: '0.8s' }}
               />
-              <div className="absolute inset-6 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-4 rounded-full bg-gray-800/40 flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
-            
-            {/* Brand text */}
-            <h2 className="text-3xl font-bold">RoomSplit</h2>
-            <p className="text-white/80 text-lg">Loading your experience...</p>
-            
-            {/* Progress bar */}
-            <div className="w-64 mx-auto mt-6">
-              <div className="h-1 bg-white/20 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-white/80 rounded-full transition-all duration-300"
-                  style={{ width: `${progress * 100}%` }}
-                />
-              </div>
-              <div className="text-sm text-white/60 mt-2">
-                {Math.round(progress * 100)}%
-              </div>
-            </div>
           </div>
-        </div>
-        
-        {/* Particle effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-white/40 rounded-full"
-              style={{
-                left: `${10 + (i * 8)}%`,
-                top: `${20 + (i * 5)}%`,
-                animation: `float 2s ease-in-out infinite`,
-                animationDelay: `${i * 150}ms`,
-                transform: `translateY(${Math.sin(progress * Math.PI * 2 + i) * 20}px)`,
-              }}
-            />
-          ))}
         </div>
       </div>
       

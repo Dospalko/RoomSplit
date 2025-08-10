@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { PageTransition } from '@/components';
+import PageTransition from './loading/PageTransition';
 
 interface TransitionContextType {
   startTransition: () => void;
@@ -19,6 +19,7 @@ export const useTransition = () => useContext(TransitionContext);
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const pathname = usePathname();
+  const previousPathname = useRef(pathname);
 
   const startTransition = () => {
     setIsTransitioning(true);
@@ -28,14 +29,28 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     setIsTransitioning(false);
   };
 
-  // Auto-trigger transition on route change
+  // Auto-trigger transition only when navigating TO rooms pages
   useEffect(() => {
-    setIsTransitioning(true);
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 800);
+    const isCurrentRoomsPage = pathname.startsWith('/rooms');
+    const wasPreviousRoomsPage = previousPathname.current.startsWith('/rooms');
+    
+    // Only trigger transition when going TO a rooms page (not when leaving)
+    const shouldTransition = isCurrentRoomsPage && !wasPreviousRoomsPage;
+    
+    if (shouldTransition && pathname !== previousPathname.current) {
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 800);
 
-    return () => clearTimeout(timer);
+      // Update previous pathname after transition starts
+      previousPathname.current = pathname;
+
+      return () => clearTimeout(timer);
+    } else {
+      // Update without transition
+      previousPathname.current = pathname;
+    }
   }, [pathname]);
 
   return (
