@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { ButtonLoader } from "@/components";
 
 interface RoomCreateModalProps {
   onCreateRoom: (roomName: string) => void;
@@ -60,13 +61,16 @@ export default function RoomCreateModal({ onCreateRoom, onClose, creating }: Roo
               >
                 Cancel
               </button>
-              <button
+              <ButtonLoader
+                loading={creating}
                 type="submit"
-                disabled={!roomName.trim() || creating}
+                disabled={!roomName.trim()}
+                variant="primary"
+                size="lg"
                 className="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {creating ? "Creating..." : "Create Room"}
-              </button>
+                Create Room
+              </ButtonLoader>
             </div>
           </form>
         </div>

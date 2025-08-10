@@ -17,5 +17,5 @@ export * from './sections';
 // Re-exports for backward compatibility and convenience
 export { Header, SimpleHeader, ConditionalHeader, Footer } from './layout';
 export { ExpenseAnalytics, RoomGrid } from './features';
-export { RoomCreateModal } from './ui';
+export { RoomCreateModal, PageLoader, SkeletonLoader, ButtonLoader, DataLoader, PageTransition } from './ui';
 export { Hero, FeaturesSection, HowItWorksSection, StatsSection } from './sections';

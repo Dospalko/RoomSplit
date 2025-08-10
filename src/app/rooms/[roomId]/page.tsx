@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { ExpenseAnalytics, SkeletonLoader, DataLoader, ButtonLoader } from "@/components";
+import { ExpenseAnalytics, SkeletonLoader, ButtonLoader } from "@/components";
 
 // Domain types
 type Member = { id: number; name: string };
@@ -64,16 +64,22 @@ export default function RoomDetail() {
   // Data loader
   const load = useCallback(async () => {
     if (!Number.isFinite(rid)) return;
+    setLoading(true);
     try {
       const [m, b, s] = await Promise.all([
         fetch(`/api/rooms/${rid}/members`).then((r) => r.json()),
         fetch(`/api/rooms/${rid}/bills`).then((r) => r.json()),
         fetch(`/api/rooms/${rid}/summary?period=${period}`).then((r) => r.json()).catch(() => null),
       ]);
-      setMembers(m);
-      setBills(b);
-      setSummary(s && !s.error ? s : null);
+      // Simulate loading delay for better UX
+      setTimeout(() => {
+        setMembers(m);
+        setBills(b);
+        setSummary(s && !s.error ? s : null);
+        setLoading(false);
+      }, 800);
     } catch {
+      setLoading(false);
       // swallow for now
     }
   }, [rid, period]);
@@ -84,15 +90,20 @@ export default function RoomDetail() {
   const addMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!memberName.trim()) return;
+    setAddingMember(true);
     await fetch(`/api/rooms/${rid}/members`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: memberName.trim() }) });
     setMemberName("");
-    load();
+    setTimeout(() => {
+      load();
+      setAddingMember(false);
+    }, 1000);
   };
 
   const addBill = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = Number(amount);
     if (!title.trim() || !amountNum || !period.match(/^\d{4}-\d{2}$/)) return;
+    setAddingBill(true);
   let meta: BillMeta = null;
     if (rule === 'PERCENT') {
       // Build percents map, validate sum ~ 100
@@ -106,6 +117,7 @@ export default function RoomDetail() {
       }
       if (Math.abs(sum - 100) > 0.01) {
         alert('Percents must sum to 100');
+        setAddingBill(false);
         return;
       }
       meta = { percents };
@@ -120,12 +132,16 @@ export default function RoomDetail() {
       }
       if (sum <= 0) {
         alert('Total weight must be > 0');
+        setAddingBill(false);
         return;
       }
       meta = { weights };
     }
     await fetch(`/api/rooms/${rid}/bills`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title.trim(), amount: amountNum, period, rule, meta }) });
-    load();
+    setTimeout(() => {
+      load();
+      setAddingBill(false);
+    }, 1200);
   };
 
   const markPaid = async (shareId: number, paid: boolean) => {
@@ -257,6 +273,20 @@ export default function RoomDetail() {
       {activeTab === 'overview' ? (
         /* Overview Tab - Original Content */
         <>
+          {loading ? (
+            <div className="space-y-8">
+              <SkeletonLoader type="analytics" count={1} />
+              <div className="grid lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-4 space-y-8">
+                  <SkeletonLoader type="card" count={2} />
+                </div>
+                <div className="lg:col-span-8">
+                  <SkeletonLoader type="list" count={3} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* Grid Layout */}
       <div className="grid lg:grid-cols-12 gap-8">
         {/* Left column: Members + New Bill */}
@@ -278,9 +308,14 @@ export default function RoomDetail() {
                     placeholder="Alice"
                   />
                 </div>
-                <button className="rounded-lg px-4 py-2 text-sm font-medium bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow hover:shadow-md active:scale-[.98] transition" type="submit">
+                <ButtonLoader
+                  loading={addingMember}
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                >
                   Add
-                </button>
+                </ButtonLoader>
               </form>
               <ul className="mt-5 grid sm:grid-cols-1 gap-2 max-h-72 overflow-auto pr-1">
                 {members.length === 0 && <li className="text-xs text-neutral-500">No members yet.</li>}
@@ -375,9 +410,15 @@ export default function RoomDetail() {
                   )}
                 </div>
                 <div className="sm:col-span-2">
-                  <button type="submit" className="w-full rounded-lg py-2.5 text-sm font-medium bg-gradient-to-br from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 text-white dark:text-neutral-900 shadow hover:shadow-md active:scale-[.985] transition">
+                  <ButtonLoader
+                    loading={addingBill}
+                    type="submit"
+                    variant="secondary"
+                    size="lg"
+                    className="w-full rounded-lg py-2.5 text-sm font-medium bg-gradient-to-br from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 text-white dark:text-neutral-900 shadow hover:shadow-md active:scale-[.985] transition"
+                  >
                     Create ({rule.toLowerCase()}) split
-                  </button>
+                  </ButtonLoader>
                 </div>
               </form>
             </div>
@@ -464,6 +505,8 @@ export default function RoomDetail() {
           )}
         </div>
       </div>
+            </>
+          )}
         </>
       ) : (
         /* Analytics Tab */
