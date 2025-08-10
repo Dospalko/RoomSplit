@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
-import ExpenseAnalytics from "@/components/ExpenseAnalytics";
+import { ExpenseAnalytics } from "@/components";
 
 // Domain types
 type Member = { id: number; name: string };

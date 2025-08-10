@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Hero from "@/components/Hero";
-import StatsSection from "@/components/StatsSection";
-import FeaturesSection from "@/components/FeaturesSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import RoomGrid from "@/components/RoomGrid";
-import RoomCreateModal from "@/components/RoomCreateModal";
+import { 
+  Hero, 
+  StatsSection, 
+  FeaturesSection, 
+  HowItWorksSection,
+  RoomGrid,
+  RoomCreateModal
+} from "@/components";
 
 type Room = { id: number; name: string };
 

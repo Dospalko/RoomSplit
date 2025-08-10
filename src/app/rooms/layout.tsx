@@ -1,4 +1,4 @@
-import SimpleHeader from '@/components/SimpleHeader';
+import { SimpleHeader } from '@/components';
 
 export default function RoomsLayout({
   children,
