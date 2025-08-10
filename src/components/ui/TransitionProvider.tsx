@@ -41,7 +41,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
       setIsTransitioning(true);
       const timer = setTimeout(() => {
         setIsTransitioning(false);
-      }, 800);
+      }, 200); // Ultra fast - 200ms
 
       // Update previous pathname after transition starts
       previousPathname.current = pathname;
@@ -60,7 +60,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
         isLoading={isTransitioning} 
         onComplete={completeTransition}
         direction="horizontal"
-        duration={600}
+        duration={200}
       />
     </TransitionContext.Provider>
   );

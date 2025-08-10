@@ -45,7 +45,7 @@ export default function ButtonLoader({
       onClick={onClick}
       disabled={disabled || loading}
       className={`
-        relative overflow-hidden rounded-lg font-medium transition-all duration-300 
+        relative overflow-hidden rounded-lg font-medium transition-all duration-150 
         ${sizeClasses[size]} 
         ${variantClasses[variant]}
         ${disabled || loading ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}
@@ -58,7 +58,7 @@ export default function ButtonLoader({
       )}
       
       {/* Content */}
-      <div className={`flex items-center justify-center gap-2 transition-opacity duration-200 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`flex items-center justify-center gap-2 transition-opacity duration-100 ${loading ? 'opacity-0' : 'opacity-100'}`}>
         {children}
       </div>
       

@@ -25,8 +25,8 @@ export default function RoomCreateModal({ onCreateRoom, onClose, creating }: Roo
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md animate-in slide-in-from-bottom-4 duration-200">
         <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">Create Room</h3>

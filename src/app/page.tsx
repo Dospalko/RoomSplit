@@ -8,8 +8,7 @@ import {
   HowItWorksSection,
   RoomGrid,
   RoomCreateModal,
-  SkeletonLoader,
-  PageLoader
+  SkeletonLoader
 } from "@/components";
 
 type Room = { id: number; name: string };
@@ -18,16 +17,11 @@ export default function Home() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [creating, setCreating] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [roomsLoading, setRoomsLoading] = useState(true);
+  const [roomsLoading, setRoomsLoading] = useState(false);
 
   useEffect(() => {
-    // Simulate initial page load
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      fetchRooms();
-    }, 2000);
+    // Immediate load without delays
+    fetchRooms();
   }, []);
 
   const fetchRooms = async () => {
@@ -36,11 +30,9 @@ export default function Home() {
       const res = await fetch("/api/rooms");
       if (res.ok) {
         const data = await res.json();
-        // Simulate network delay for demo
-        setTimeout(() => {
-          setRooms(data);
-          setRoomsLoading(false);
-        }, 1000);
+        // Quick response - no artificial delay
+        setRooms(data);
+        setRoomsLoading(false);
       }
     } catch (error) {
       console.error("Error fetching rooms:", error);
@@ -57,12 +49,10 @@ export default function Home() {
         body: JSON.stringify({ name: roomName.trim() }),
       });
       if (res.ok) {
-        // Add delay to show loading animation
-        setTimeout(async () => {
-          await fetchRooms();
-          setShowModal(false);
-          setCreating(false);
-        }, 1500);
+        // Quick response without artificial delay
+        await fetchRooms();
+        setShowModal(false);
+        setCreating(false);
       }
     } catch (error) {
       console.error("Error creating room:", error);
@@ -89,13 +79,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Page Loader */}
-      <PageLoader 
-        isLoading={loading} 
-        progress={loading ? 75 : 100}
-        message="Initializing RoomSplit experience"
-      />
-      
+      {/* Remove PageLoader completely for instant loading */}
       <div 
         className="min-h-screen relative" 
       >

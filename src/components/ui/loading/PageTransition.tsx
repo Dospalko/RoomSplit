@@ -13,7 +13,7 @@ export default function PageTransition({
   isLoading, 
   onComplete, 
   direction = 'horizontal',
-  duration = 800 
+          duration = 400, 
 }: PageTransitionProps) {
   const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);

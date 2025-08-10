@@ -11,7 +11,7 @@ export default function SkeletonLoader({ type = 'card', count = 3, className = '
     switch (type) {
       case 'card':
         return (
-          <div className={`animate-pulse space-y-4 ${className}`}>
+          <div className={`animate-pulse space-y-4 ${className}`} style={{ animationDuration: '1s' }}>
             <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm p-6 space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="rounded-full bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 h-12 w-12"></div>
