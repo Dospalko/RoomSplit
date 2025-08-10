@@ -1,2 +1,3 @@
 // UI Components - Barrel Export
 export * from './modals';
+export * from './loading';

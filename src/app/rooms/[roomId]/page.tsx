@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { ExpenseAnalytics } from "@/components";
+import { ExpenseAnalytics, SkeletonLoader, DataLoader, ButtonLoader } from "@/components";
 
 // Domain types
 type Member = { id: number; name: string };
@@ -28,6 +28,11 @@ export default function RoomDetail() {
   const [percentMeta, setPercentMeta] = useState<Record<number, string>>({});
   const [weightMeta, setWeightMeta] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
+  
+  // Loading states
+  const [loading, setLoading] = useState(true);
+  const [addingMember, setAddingMember] = useState(false);
+  const [addingBill, setAddingBill] = useState(false);
 
   // Derived maps & aggregates
   const memberNameById = useMemo(() => members.reduce<Record<number, string>>((acc, m) => { acc[m.id] = m.name; return acc; }, {}), [members]);
