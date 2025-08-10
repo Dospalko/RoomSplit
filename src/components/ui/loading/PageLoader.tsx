@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 interface PageLoaderProps {
   isLoading: boolean;
   progress?: number;
@@ -7,21 +9,34 @@ interface PageLoaderProps {
 }
 
 export default function PageLoader({ isLoading }: PageLoaderProps) {
+  const [stars, setStars] = useState<Array<{id: number, left: number, top: number, delay: number}>>([]);
+
+  // Generate stars only on client to avoid hydration mismatch
+  useEffect(() => {
+    const starData = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 2
+    }));
+    setStars(starData);
+  }, []);
+
   if (!isLoading) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-gray-900 overflow-hidden">
       {/* Animated background particles */}
       <div className="absolute inset-0">
-        {[...Array(50)].map((_, i) => (
+        {stars.map((star) => (
           <div
-            key={i}
+            key={star.id}
             className="absolute w-1 h-1 bg-white/20 rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              animation: `twinkle ${2 + (star.id % 3)}s ease-in-out infinite`,
+              animationDelay: `${star.delay}s`,
             }}
           />
         ))}
