@@ -7,9 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String   // In production, this would be hashed
+  rooms     Room[]
+  createdAt DateTime @default(now())
+}
+
 model Room {
   id      Int      @id @default(autoincrement())
   name    String   @unique
+  userId  Int?
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   members Member[]
   bills   Bill[]
 }
