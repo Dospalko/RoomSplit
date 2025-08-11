@@ -1,10 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/db';
+import { rateLimit } from '@/server/rateLimit';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    // Rate limiting by IP
+    const clientIP = request.headers.get('x-forwarded-for') || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
+    
+    if (rateLimit(`login:${clientIP}`, 5, 15 * 60 * 1000)) { // 5 attempts per 15 minutes
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    const body = await request.json().catch(() => null);
+    
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+
+    const { email, password } = body;
+
+    // Validate input types and format
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Rate limiting by email
+    if (rateLimit(`login-email:${email.toLowerCase()}`, 3, 15 * 60 * 1000)) { // 3 attempts per email per 15 minutes
+      return NextResponse.json(
+        { error: 'Too many login attempts for this email. Please try again later.' },
+        { status: 429 }
+      );
+    }
 
     if (!email || !password) {
       return NextResponse.json(
@@ -13,9 +60,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
+    // Find user by email (case insensitive)
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase() },
       select: {
         id: true,
         email: true,
@@ -48,8 +95,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create response with user data
-    const { password: _, ...userWithoutPassword } = user;
+    // Create response with user data (excluding password)
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      name: user.name
+    };
     const response = NextResponse.json({ 
       success: true,
       user: userWithoutPassword 

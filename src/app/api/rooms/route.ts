@@ -10,13 +10,23 @@ async function getAuthenticatedUser(request: NextRequest) {
     return null;
   }
 
+  // Validate session cookie format and parse safely
   const userId = parseInt(sessionCookie.value);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, email: true, name: true }
-  });
+  if (isNaN(userId) || userId <= 0) {
+    return null;
+  }
 
-  return user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true }
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
 }
 
 export async function GET(request: NextRequest) {
