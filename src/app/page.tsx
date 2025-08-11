@@ -38,15 +38,13 @@ export default function Home() {
   const checkAuthStatus = async () => {
     setAuthLoading(true);
     try {
-      // Check if user has session cookie by trying to fetch user-specific data
-      const res = await fetch("/api/rooms");
-      if (res.status === 401) {
-        // Not authenticated
+      // Check if user has valid session
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else {
         setUser(null);
-      } else if (res.ok) {
-        // For now, we'll consider them logged in if they can access rooms
-        // In a real app, you'd have a /api/auth/me endpoint
-        setUser({ id: 1, email: 'user@example.com', name: 'Demo User' });
       }
     } catch {
       setUser(null);
