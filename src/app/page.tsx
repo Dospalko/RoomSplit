@@ -7,25 +7,53 @@ import {
   FeaturesSection, 
   HowItWorksSection,
   RoomGrid,
-  RoomCreateModal,
   SkeletonLoader
 } from "@/components";
+import { RoomCreateModal, LoginModal } from "@/components/ui/modals";
 
 type Room = { id: number; name: string };
+type User = { id: number; email: string; name: string };
 
 export default function Home() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [creating, setCreating] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [roomsLoading, setRoomsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder login state
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session
+    checkAuthStatus();
+  }, []);
 
   useEffect(() => {
     // Only fetch rooms if logged in
-    if (isLoggedIn) {
+    if (user) {
       fetchRooms();
     }
-  }, [isLoggedIn]);
+  }, [user]);
+
+  const checkAuthStatus = async () => {
+    setAuthLoading(true);
+    try {
+      // Check if user has session cookie by trying to fetch user-specific data
+      const res = await fetch("/api/rooms");
+      if (res.status === 401) {
+        // Not authenticated
+        setUser(null);
+      } else if (res.ok) {
+        // For now, we'll consider them logged in if they can access rooms
+        // In a real app, you'd have a /api/auth/me endpoint
+        setUser({ id: 1, email: 'user@example.com', name: 'Demo User' });
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const fetchRooms = async () => {
     setRoomsLoading(true);
@@ -54,7 +82,7 @@ export default function Home() {
       if (res.ok) {
         // Quick response without artificial delay
         await fetchRooms();
-        setShowModal(false);
+        setShowCreateModal(false);
         setCreating(false);
       }
     } catch (error) {
@@ -73,16 +101,34 @@ export default function Home() {
   };
 
   const openCreateModal = () => {
-    setShowModal(true);
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    setShowCreateModal(true);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
+  const closeCreateModal = () => {
+    setShowCreateModal(false);
   };
 
-  const handleLogin = () => {
-    // Placeholder login - just toggle state for now
-    setIsLoggedIn(true);
+  const handleLogin = (userData: User) => {
+    setUser(userData);
+    setShowLoginModal(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      setRooms([]);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const openLoginModal = () => {
+    setShowLoginModal(true);
   };
 
   return (
@@ -105,7 +151,12 @@ export default function Home() {
         {/* Room Management Section */}
         <div id="rooms" className="relative py-20 lg:py-32">
           <div className="w-full mx-auto px-6 lg:px-8">
-            {!isLoggedIn ? (
+            {authLoading ? (
+              <div className="text-center">
+                <div className="w-8 h-8 mx-auto animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                <p className="mt-4 text-slate-600 dark:text-slate-400">Loading...</p>
+              </div>
+            ) : !user ? (
               /* Login Placeholder */
               <div className="text-center max-w-2xl mx-auto">
                 <div className="mb-8">
@@ -124,7 +175,7 @@ export default function Home() {
                 
                 <div className="space-y-4">
                   <button
-                    onClick={handleLogin}
+                    onClick={openLoginModal}
                     className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,13 +183,6 @@ export default function Home() {
                     </svg>
                     Sign In to Continue
                   </button>
-                  
-                  <div className="text-sm text-slate-500 dark:text-slate-400">
-                    Don&apos;t have an account? 
-                    <button className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
-                      Create one for free
-                    </button>
-                  </div>
                 </div>
 
                 {/* Feature Preview Cards */}
@@ -163,22 +207,49 @@ export default function Home() {
                 className="animate-pulse" 
               />
             ) : (
-              <RoomGrid 
-                rooms={rooms}
-                onDeleteRoom={deleteRoom}
-                onCreateRoom={openCreateModal}
-                creating={creating}
-              />
+              <div>
+                {/* User info and logout */}
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                      Welcome back, {user.name}!
+                    </h2>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      Manage your expense rooms
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+                
+                <RoomGrid 
+                  rooms={rooms}
+                  onDeleteRoom={deleteRoom}
+                  onCreateRoom={openCreateModal}
+                  creating={creating}
+                />
+              </div>
             )}
           </div>
         </div>
 
-        {/* Room Creation Modal */}
-        {showModal && (
+        {/* Modals */}
+        {showCreateModal && (
           <RoomCreateModal
             onCreateRoom={createRoom}
-            onClose={closeModal}
+            onClose={closeCreateModal}
             creating={creating}
+          />
+        )}
+
+        {showLoginModal && (
+          <LoginModal
+            onClose={() => setShowLoginModal(false)}
+            onLogin={handleLogin}
           />
         )}
       </div>
