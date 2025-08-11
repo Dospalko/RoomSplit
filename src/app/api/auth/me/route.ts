@@ -13,25 +13,48 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find user by session (using user ID stored in cookie)
+    // Validate session cookie format
     const userId = parseInt(sessionCookie.value);
+    if (isNaN(userId) || userId <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid session' },
+        { status: 401 }
+      );
+    }
+
+    // Find user by session (using user ID stored in cookie)
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         email: true,
         name: true,
+        createdAt: true,
       }
     });
 
     if (!user) {
-      return NextResponse.json(
+      // Clear invalid session cookie
+      const response = NextResponse.json(
         { error: 'User not found' },
         { status: 401 }
       );
+      
+      response.cookies.set('user-session', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 0,
+        path: '/'
+      });
+      
+      return response;
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({ 
+      success: true,
+      user 
+    });
 
   } catch (error) {
     console.error('Auth check error:', error);

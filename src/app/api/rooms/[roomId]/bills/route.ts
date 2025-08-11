@@ -1,23 +1,98 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { z } from "zod";
 
 type Params = { params: Promise<{ roomId: string }> };
 
-export async function GET(_req: Request, ctx: Params) {
-  const { roomId: roomIdStr } = await ctx.params;
-  const roomId = Number(roomIdStr);
-  const bills = await prisma.bill.findMany({
-    where: { roomId },
-    orderBy: { id: "desc" },
-    include: {
-      shares: { include: { member: true } }, // ⬅ mená členov
-    },
-  });
-  return NextResponse.json(bills);
+// Helper function to get authenticated user from session
+async function getAuthenticatedUser(request: NextRequest) {
+  const sessionCookie = request.cookies.get('user-session');
+  
+  if (!sessionCookie?.value) {
+    return null;
+  }
+
+  const userId = parseInt(sessionCookie.value);
+  if (isNaN(userId) || userId <= 0) {
+    return null;
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
 }
 
-import { z } from "zod";
+// Helper function to verify room ownership
+async function verifyRoomOwnership(roomId: number, userId: number) {
+  try {
+    const room = await prisma.room.findFirst({
+      where: {
+        id: roomId,
+        userId: userId
+      }
+    });
+    return !!room;
+  } catch (error) {
+    console.error('Error verifying room ownership:', error);
+    return false;
+  }
+}
+
+export async function GET(request: NextRequest, ctx: Params) {
+  try {
+    const user = await getAuthenticatedUser(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const { roomId: roomIdStr } = await ctx.params;
+    const roomId = Number(roomIdStr);
+
+    if (!Number.isFinite(roomId)) {
+      return NextResponse.json(
+        { error: 'Invalid room ID' },
+        { status: 400 }
+      );
+    }
+
+    // Verify user owns this room
+    const ownsRoom = await verifyRoomOwnership(roomId, user.id);
+    if (!ownsRoom) {
+      return NextResponse.json(
+        { error: 'Access denied - room not found or not owned by user' },
+        { status: 403 }
+      );
+    }
+
+    const bills = await prisma.bill.findMany({
+      where: { roomId },
+      orderBy: { id: "desc" },
+      include: {
+        shares: { include: { member: true } },
+      },
+    });
+    
+    return NextResponse.json(bills);
+  } catch (error) {
+    console.error('Error fetching bills:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch bills' },
+      { status: 500 }
+    );
+  }
+}
 
 // Incoming payload for creating a bill. "rule" & "meta" are optional; default rule = EQUAL.
 const BillCreate = z.object({
@@ -128,24 +203,22 @@ export async function POST(req: Request, ctx: Params) {
     allocations[0].cents += diff; // adjust first deterministically
   }
 
-  const bill = await prisma.$transaction(async (tx: typeof prisma) => {
-    const b = await tx.bill.create({
-      data: {
-        roomId,
-        title: title.trim(),
-        amountCents,
-        period,
-        rule: rule as any,
-        meta: storeMeta,
-      },
-    });
-    for (const a of allocations) {
-      await tx.share.create({ data: { billId: b.id, memberId: a.memberId, amountCents: a.cents } });
-    }
-    return b;
-  });
-
-  const out = await prisma.bill.findUnique({
+    const bill = await prisma.$transaction(async (tx) => {
+      const b = await tx.bill.create({
+        data: {
+          roomId,
+          title: title.trim(),
+          amountCents,
+          period,
+          rule: rule as any,
+          meta: storeMeta,
+        },
+      });
+      for (const a of allocations) {
+        await tx.share.create({ data: { billId: b.id, memberId: a.memberId, amountCents: a.cents } });
+      }
+      return b;
+    });  const out = await prisma.bill.findUnique({
     where: { id: bill.id },
     include: { shares: { include: { member: true } } },
   });

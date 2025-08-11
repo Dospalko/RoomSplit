@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ExpenseAnalytics, SkeletonLoader, ButtonLoader } from "@/components";
 
 // Domain types
@@ -9,12 +9,19 @@ type Share = { id: number; memberId: number; amountCents: number; paid: boolean;
 type BillRule = 'EQUAL' | 'PERCENT' | 'WEIGHT';
 type BillMeta = { percents?: Record<string, number>; weights?: Record<string, number> } | null;
 type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[]; rule?: BillRule; meta?: BillMeta };
+type User = { id: number; email: string; name: string };
 
 const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
 
 export default function RoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
+  const router = useRouter();
   const rid = Number(roomId);
+
+  // Auth state
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   // State
   const [members, setMembers] = useState<Member[]>([]);
@@ -33,6 +40,31 @@ export default function RoomDetail() {
   const [loading, setLoading] = useState(true);
   const [addingMember, setAddingMember] = useState(false);
   const [addingBill, setAddingBill] = useState(false);
+
+  // Authentication check
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        } else {
+          // Not authenticated, redirect to home
+          router.push('/');
+          return;
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        router.push('/');
+        return;
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   // Derived maps & aggregates
   const memberNameById = useMemo(() => members.reduce<Record<number, string>>((acc, m) => { acc[m.id] = m.name; return acc; }, {}), [members]);
@@ -61,30 +93,54 @@ export default function RoomDetail() {
     return map;
   }, [bills, members]);
 
-  // Data loader
+  // Data loader with authentication
   const load = useCallback(async () => {
-    if (!Number.isFinite(rid)) return;
+    if (!Number.isFinite(rid) || authLoading) return;
     setLoading(true);
     try {
       const [m, b, s] = await Promise.all([
-        fetch(`/api/rooms/${rid}/members`).then((r) => r.json()),
-        fetch(`/api/rooms/${rid}/bills`).then((r) => r.json()),
-        fetch(`/api/rooms/${rid}/summary?period=${period}`).then((r) => r.json()).catch(() => null),
+        fetch(`/api/rooms/${rid}/members`).then(async (r) => {
+          if (r.status === 401 || r.status === 403) {
+            setAccessDenied(true);
+            router.push('/');
+            throw new Error('Access denied');
+          }
+          if (!r.ok) throw new Error('Failed to fetch members');
+          return r.json();
+        }),
+        fetch(`/api/rooms/${rid}/bills`).then(async (r) => {
+          if (r.status === 401 || r.status === 403) {
+            setAccessDenied(true);
+            router.push('/');
+            throw new Error('Access denied');
+          }
+          if (!r.ok) throw new Error('Failed to fetch bills');
+          return r.json();
+        }),
+        fetch(`/api/rooms/${rid}/summary?period=${period}`).then(async (r) => {
+          if (r.status === 401 || r.status === 403) {
+            return null; // Summary is optional
+          }
+          if (!r.ok) return null;
+          return r.json();
+        }).catch(() => null),
       ]);
-      // Simulate loading delay for better UX
-      setTimeout(() => {
-        setMembers(m);
-        setBills(b);
-        setSummary(s && !s.error ? s : null);
-        setLoading(false);
-      }, 800);
-    } catch {
+      
+      setMembers(m);
+      setBills(b);
+      setSummary(s && !s.error ? s : null);
       setLoading(false);
-      // swallow for now
+    } catch (error) {
+      console.error('Failed to load room data:', error);
+      setLoading(false);
     }
-  }, [rid, period]);
+  }, [rid, period, authLoading, router]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    if (!authLoading && user) {
+      load(); 
+    }
+  }, [load, authLoading, user]);
 
   // Actions
   const addMember = async (e: React.FormEvent) => {
@@ -164,6 +220,48 @@ export default function RoomDetail() {
     await fetch(`/api/rooms?id=${rid}`, { method: 'DELETE' });
     window.location.href = '/';
   };
+
+  // Show authentication loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <p className="mt-4 text-slate-600 dark:text-slate-400">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <svg className="w-12 h-12 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Access Denied</h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            You don&apos;t have permission to access this room, or it doesn&apos;t exist.
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show main content only if authenticated
+  if (!user) {
+    return null;
+  }
 
   // UI helpers
   const statCard = (label: string, value: string, extra?: string, accent?: string) => (
@@ -512,6 +610,7 @@ export default function RoomDetail() {
         /* Analytics Tab */
         <ExpenseAnalytics members={members} bills={bills} />
       )}
+      
     </div>
   );
 }
