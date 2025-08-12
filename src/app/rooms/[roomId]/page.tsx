@@ -10,6 +10,7 @@ type BillRule = 'EQUAL' | 'PERCENT' | 'WEIGHT';
 type BillMeta = { percents?: Record<string, number>; weights?: Record<string, number> } | null;
 type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[]; rule?: BillRule; meta?: BillMeta };
 type User = { id: number; email: string; name: string };
+type Room = { id: number; name: string };
 
 const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
 
@@ -24,6 +25,7 @@ export default function RoomDetail() {
   const [accessDenied, setAccessDenied] = useState(false);
 
   // State
+  const [room, setRoom] = useState<Room | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [bills, setBills] = useState<Bill[]>([]);
   const [memberName, setMemberName] = useState("");
@@ -96,7 +98,16 @@ export default function RoomDetail() {
     if (!Number.isFinite(rid) || authLoading) return;
     setLoading(true);
     try {
-      const [m, b, s] = await Promise.all([
+      const [roomData, m, b, s] = await Promise.all([
+        fetch(`/api/rooms/${rid}`).then(async (r) => {
+          if (r.status === 401 || r.status === 403) {
+            setAccessDenied(true);
+            router.push('/');
+            throw new Error('Access denied');
+          }
+          if (!r.ok) throw new Error('Failed to fetch room');
+          return r.json();
+        }),
         fetch(`/api/rooms/${rid}/members`).then(async (r) => {
           if (r.status === 401 || r.status === 403) {
             setAccessDenied(true);
@@ -124,6 +135,7 @@ export default function RoomDetail() {
         }).catch(() => null),
       ]);
       
+      setRoom(roomData);
       setMembers(m);
       setBills(b);
       setSummary(s && !s.error ? s : null);
@@ -267,7 +279,9 @@ export default function RoomDetail() {
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-8 shadow-sm">
         <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Room #{rid}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              {room?.name || `Room #${rid}`}
+            </h1>
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={deleteRoom} className="text-xs rounded-md border border-red-300/50 dark:border-red-700/40 text-red-600 dark:text-red-400 px-3 py-1 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition">Delete room</button>
             </div>
