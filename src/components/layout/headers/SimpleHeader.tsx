@@ -2,9 +2,34 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+type Room = { id: number; name: string };
 
 export default function SimpleHeader() {
   const { roomId } = useParams<{ roomId: string }>();
+  const [room, setRoom] = useState<Room | null>(null);
+
+  // Fetch room data when roomId changes
+  useEffect(() => {
+    if (roomId) {
+      const fetchRoom = async () => {
+        try {
+          const res = await fetch(`/api/rooms/${roomId}`);
+          if (res.ok) {
+            const roomData = await res.json();
+            setRoom(roomData);
+          }
+        } catch (error) {
+          console.error('Failed to fetch room:', error);
+        }
+      };
+      
+      fetchRoom();
+    } else {
+      setRoom(null);
+    }
+  }, [roomId]);
 
   return (
     <>
@@ -29,7 +54,7 @@ export default function SimpleHeader() {
               </span>
               {roomId && (
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-roboto-mono font-medium tracking-wider">
-                  Room #{roomId}
+                  {room?.name || `Room #${roomId}`}
                 </span>
               )}
             </div>
