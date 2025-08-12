@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ExpenseAnalytics, SkeletonLoader } from "@/components";
 
@@ -11,6 +11,16 @@ type BillMeta = { percents?: Record<string, number>; weights?: Record<string, nu
 type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[]; rule?: BillRule; meta?: BillMeta };
 type User = { id: number; email: string; name: string };
 type Room = { id: number; name: string };
+
+// Notification types
+type NotificationType = 'success' | 'error' | 'warning' | 'info';
+type Notification = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  duration?: number;
+};
 
 const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
 
@@ -40,6 +50,106 @@ export default function RoomDetail() {
   
   // Loading states
   const [loading, setLoading] = useState(true);
+  const welcomeShownRef = useRef(false);
+
+  // Notification system
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Notification utility functions
+  const addNotification = useCallback((type: NotificationType, title: string, message: string, duration: number = 5000) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const notification: Notification = { id, type, title, message, duration };
+    
+    setNotifications(prev => [...prev, notification]);
+    
+    if (duration > 0) {
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }, duration);
+    }
+  }, []);
+
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  // Helper function to handle API errors
+  const handleApiError = useCallback((error: unknown, fallbackMessage: string) => {
+    console.error(fallbackMessage, error);
+    const message = error instanceof Error ? error.message : fallbackMessage;
+    addNotification('error', 'Error', message);
+  }, [addNotification]);
+
+  // Validation functions
+  const validateMemberName = (name: string): string | null => {
+    if (!name.trim()) return "Member name is required";
+    if (name.trim().length < 2) return "Member name must be at least 2 characters";
+    if (name.trim().length > 50) return "Member name must be less than 50 characters";
+    if (members.some(m => m.name.toLowerCase() === name.trim().toLowerCase())) return "Member with this name already exists";
+    return null;
+  };
+
+  const validateBillData = (title: string, amount: string, period: string): string | null => {
+    if (!title.trim()) return "Bill title is required";
+    if (title.trim().length < 2) return "Bill title must be at least 2 characters";
+    if (title.trim().length > 120) return "Bill title must be less than 120 characters";
+    
+    const amountNum = Number(amount);
+    if (!amount.trim()) return "Amount is required";
+    if (isNaN(amountNum) || amountNum <= 0) return "Amount must be a positive number";
+    if (amountNum > 999999) return "Amount cannot exceed €999,999";
+    
+    if (!period.trim()) return "Period is required";
+    if (!period.match(/^\d{4}-\d{2}$/)) return "Period must be in YYYY-MM format";
+    
+    if (members.length === 0) return "Add at least one member before creating bills";
+    
+    return null;
+  };
+
+  const validatePercentages = (): string | null => {
+    let sum = 0;
+    const memberCount = members.length;
+    let filledCount = 0;
+    
+    for (const m of members) {
+      const value = percentMeta[m.id];
+      if (value !== undefined && value !== '') {
+        const num = Number(value);
+        if (isNaN(num) || num < 0) return `Invalid percentage for ${m.name}`;
+        if (num > 100) return `Percentage for ${m.name} cannot exceed 100%`;
+        sum += num;
+        filledCount++;
+      }
+    }
+    
+    if (filledCount === 0) return "Please enter percentages for at least one member";
+    if (filledCount < memberCount) return "Please enter percentages for all members";
+    if (Math.abs(sum - 100) > 0.01) return `Percentages must sum to 100% (currently ${sum.toFixed(2)}%)`;
+    
+    return null;
+  };
+
+  const validateWeights = (): string | null => {
+    let sum = 0;
+    let filledCount = 0;
+    
+    for (const m of members) {
+      const value = weightMeta[m.id];
+      if (value !== undefined && value !== '') {
+        const num = Number(value);
+        if (isNaN(num) || num < 0) return `Invalid weight for ${m.name}`;
+        if (num > 1000) return `Weight for ${m.name} cannot exceed 1000`;
+        sum += num;
+        filledCount++;
+      }
+    }
+    
+    if (filledCount === 0) return "Please enter weights for at least one member";
+    if (sum <= 0) return "Total weight must be greater than 0";
+    
+    return null;
+  };
 
   // Authentication check
   useEffect(() => {
@@ -99,34 +209,59 @@ export default function RoomDetail() {
     setLoading(true);
     try {
       const [roomData, m, b, s] = await Promise.all([
-        fetch(`/api/rooms/${rid}`).then(async (r) => {
+        fetch(`/api/rooms/${rid}`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }).then(async (r) => {
           if (r.status === 401 || r.status === 403) {
             setAccessDenied(true);
             router.push('/');
             throw new Error('Access denied');
           }
-          if (!r.ok) throw new Error('Failed to fetch room');
+          if (!r.ok) {
+            const errorData = await r.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to fetch room');
+          }
           return r.json();
         }),
-        fetch(`/api/rooms/${rid}/members`).then(async (r) => {
+        fetch(`/api/rooms/${rid}/members`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }).then(async (r) => {
           if (r.status === 401 || r.status === 403) {
             setAccessDenied(true);
             router.push('/');
             throw new Error('Access denied');
           }
-          if (!r.ok) throw new Error('Failed to fetch members');
+          if (!r.ok) {
+            const errorData = await r.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to fetch members');
+          }
           return r.json();
         }),
-        fetch(`/api/rooms/${rid}/bills`).then(async (r) => {
+        fetch(`/api/rooms/${rid}/bills`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(async (r) => {
+          console.log('Bills API response status:', r.status);
           if (r.status === 401 || r.status === 403) {
             setAccessDenied(true);
             router.push('/');
             throw new Error('Access denied');
           }
-          if (!r.ok) throw new Error('Failed to fetch bills');
+          if (!r.ok) {
+            const errorData = await r.json().catch(() => ({}));
+            console.error('Bills API error:', errorData);
+            throw new Error(errorData.error || 'Failed to fetch bills');
+          }
           return r.json();
         }),
-        fetch(`/api/rooms/${rid}/summary?period=${period}`).then(async (r) => {
+        fetch(`/api/rooms/${rid}/summary?period=${period}`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        }).then(async (r) => {
           if (r.status === 401 || r.status === 403) {
             return null; // Summary is optional
           }
@@ -140,11 +275,20 @@ export default function RoomDetail() {
       setBills(b);
       setSummary(s && !s.error ? s : null);
       setLoading(false);
+      
+      // Welcome notification only on first load
+      if (roomData?.name && !welcomeShownRef.current) {
+        addNotification('info', 'Welcome!', `You're now managing "${roomData.name}"`, 3000);
+        welcomeShownRef.current = true;
+      }
     } catch (error) {
       console.error('Failed to load room data:', error);
+      if (error instanceof Error && error.message !== 'Access denied') {
+        addNotification('error', 'Failed to Load Data', error.message);
+      }
       setLoading(false);
     }
-  }, [rid, period, authLoading, router]);
+  }, [rid, period, authLoading, router, addNotification]);
 
   useEffect(() => { 
     if (!authLoading && user) {
@@ -155,70 +299,206 @@ export default function RoomDetail() {
   // Actions
   const addMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!memberName.trim()) return;
-    await fetch(`/api/rooms/${rid}/members`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: memberName.trim() }) });
-    setMemberName("");
-    load();
+    
+    // Validation
+    const error = validateMemberName(memberName);
+    if (error) {
+      addNotification('error', 'Invalid Member Name', error);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/rooms/${rid}/members`, { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ name: memberName.trim() }),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      setMemberName("");
+      addNotification('success', 'Member Added', `${memberName.trim()} has been added successfully!`);
+      load();
+    } catch (error) {
+      console.error('Failed to add member:', error);
+      addNotification('error', 'Failed to Add Member', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
 
   const addBill = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation
+    const basicError = validateBillData(title, amount, period);
+    if (basicError) {
+      addNotification('error', 'Invalid Bill Data', basicError);
+      return;
+    }
+
     const amountNum = Number(amount);
-    if (!title.trim() || !amountNum || !period.match(/^\d{4}-\d{2}$/)) return;
     let meta: BillMeta = null;
+
+    // Rule-specific validation
     if (rule === 'PERCENT') {
-      // Build percents map, validate sum ~ 100
-      const percents: Record<number, number> = {};
-      let sum = 0;
-      for (const m of members) {
-        const v = Number(percentMeta[m.id] || 0);
-        if (v < 0) return;
-        percents[m.id] = v;
-        sum += v;
-      }
-      if (Math.abs(sum - 100) > 0.01) {
-        alert('Percents must sum to 100');
+      const percentError = validatePercentages();
+      if (percentError) {
+        addNotification('error', 'Invalid Percentages', percentError);
         return;
+      }
+
+      // Build percents map
+      const percents: Record<number, number> = {};
+      for (const m of members) {
+        percents[m.id] = Number(percentMeta[m.id] || 0);
       }
       meta = { percents };
     } else if (rule === 'WEIGHT') {
-      const weights: Record<number, number> = {};
-      let sum = 0;
-      for (const m of members) {
-        const v = Number(weightMeta[m.id] || 0);
-        if (v < 0) return;
-        weights[m.id] = v;
-        sum += v;
-      }
-      if (sum <= 0) {
-        alert('Total weight must be > 0');
+      const weightError = validateWeights();
+      if (weightError) {
+        addNotification('error', 'Invalid Weights', weightError);
         return;
+      }
+
+      // Build weights map
+      const weights: Record<number, number> = {};
+      for (const m of members) {
+        weights[m.id] = Number(weightMeta[m.id] || 0);
       }
       meta = { weights };
     }
-    await fetch(`/api/rooms/${rid}/bills`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title.trim(), amount: amountNum, period, rule, meta }) });
-    load();
+
+    try {
+      const res = await fetch(`/api/rooms/${rid}/bills`, { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ 
+          title: title.trim(), 
+          amount: amountNum, 
+          period, 
+          rule, 
+          meta 
+        }),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      addNotification('success', 'Bill Created', `${title.trim()} bill created successfully with ${rule.toLowerCase()} split!`);
+      
+      // Reset form
+      setTitle("Electricity");
+      setAmount("80");
+      setPercentMeta({});
+      setWeightMeta({});
+      
+      load();
+    } catch (error) {
+      console.error('Failed to create bill:', error);
+      addNotification('error', 'Failed to Create Bill', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
 
   const markPaid = async (shareId: number, paid: boolean) => {
-    await fetch(`/api/shares/${shareId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paid }) });
-    load();
+    try {
+      const res = await fetch(`/api/shares/${shareId}`, { 
+        method: "PATCH", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ paid }),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      addNotification('success', 'Payment Updated', `Share marked as ${paid ? 'paid' : 'unpaid'}!`);
+      load();
+    } catch (error) {
+      console.error('Failed to update payment:', error);
+      addNotification('error', 'Failed to Update Payment', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
 
   const deleteMember = async (memberId: number) => {
-    if (!confirm("Delete member? Their shares will also be removed.")) return;
-    await fetch(`/api/rooms/${rid}/members/${memberId}`, { method: 'DELETE' });
-    load();
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    if (!confirm(`Delete member "${member.name}"? Their shares will also be removed.`)) return;
+
+    try {
+      const res = await fetch(`/api/rooms/${rid}/members/${memberId}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      addNotification('success', 'Member Deleted', `${member.name} has been removed from the room.`);
+      load();
+    } catch (error) {
+      console.error('Failed to delete member:', error);
+      addNotification('error', 'Failed to Delete Member', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
+
   const deleteBill = async (billId: number) => {
-    if (!confirm("Delete bill and all its shares?")) return;
-    await fetch(`/api/rooms/${rid}/bills/${billId}`, { method: 'DELETE' });
-    load();
+    const bill = bills.find(b => b.id === billId);
+    if (!bill) return;
+
+    if (!confirm(`Delete bill "${bill.title}" and all its shares?`)) return;
+
+    try {
+      const res = await fetch(`/api/rooms/${rid}/bills/${billId}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      addNotification('success', 'Bill Deleted', `${bill.title} bill has been deleted.`);
+      load();
+    } catch (error) {
+      console.error('Failed to delete bill:', error);
+      addNotification('error', 'Failed to Delete Bill', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
+
   const deleteRoom = async () => {
     if (!confirm("Delete entire room (irreversible)?")) return;
-    await fetch(`/api/rooms?id=${rid}`, { method: 'DELETE' });
-    window.location.href = '/';
+
+    try {
+      const res = await fetch(`/api/rooms?id=${rid}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      }
+
+      addNotification('success', 'Room Deleted', 'Room has been permanently deleted.');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to delete room:', error);
+      addNotification('error', 'Failed to Delete Room', error instanceof Error ? error.message : 'An unexpected error occurred');
+    }
   };
 
   // Show authentication loading
@@ -273,8 +553,95 @@ export default function RoomDetail() {
     </div>
   );
 
+  // Notification component
+  const NotificationContainer = () => (
+    <div className="fixed top-20 right-4 z-50 space-y-3 max-w-sm">
+      {notifications.map((notification) => (
+        <div
+          key={notification.id}
+          className={`transform transition-all duration-300 ease-in-out animate-in slide-in-from-right-full rounded-lg border backdrop-blur-sm shadow-lg p-4 ${
+            notification.type === 'success' 
+              ? 'bg-emerald-50/90 dark:bg-emerald-900/60 border-emerald-200 dark:border-emerald-700' 
+              : notification.type === 'error'
+              ? 'bg-red-50/90 dark:bg-red-900/60 border-red-200 dark:border-red-700'
+              : notification.type === 'warning'
+              ? 'bg-amber-50/90 dark:bg-amber-900/60 border-amber-200 dark:border-amber-700'
+              : 'bg-blue-50/90 dark:bg-blue-900/60 border-blue-200 dark:border-blue-700'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              {notification.type === 'success' && (
+                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              {notification.type === 'error' && (
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              {notification.type === 'warning' && (
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              )}
+              {notification.type === 'info' && (
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className={`text-sm font-semibold ${
+                notification.type === 'success' 
+                  ? 'text-emerald-800 dark:text-emerald-200' 
+                  : notification.type === 'error'
+                  ? 'text-red-800 dark:text-red-200'
+                  : notification.type === 'warning'
+                  ? 'text-amber-800 dark:text-amber-200'
+                  : 'text-blue-800 dark:text-blue-200'
+              }`}>
+                {notification.title}
+              </h4>
+              <p className={`text-xs mt-1 ${
+                notification.type === 'success' 
+                  ? 'text-emerald-700 dark:text-emerald-300' 
+                  : notification.type === 'error'
+                  ? 'text-red-700 dark:text-red-300'
+                  : notification.type === 'warning'
+                  ? 'text-amber-700 dark:text-amber-300'
+                  : 'text-blue-700 dark:text-blue-300'
+              }`}>
+                {notification.message}
+              </p>
+            </div>
+            <button
+              onClick={() => removeNotification(notification.id)}
+              className={`flex-shrink-0 p-1 rounded-md transition-colors ${
+                notification.type === 'success' 
+                  ? 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-800' 
+                  : notification.type === 'error'
+                  ? 'text-red-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-800'
+                  : notification.type === 'warning'
+                  ? 'text-amber-400 hover:text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-800'
+                  : 'text-blue-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-800'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="space-y-10 pb-16">
+    <>
+      <NotificationContainer />
+      <div className="space-y-10 pb-16">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-8 shadow-sm">
         <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
@@ -402,11 +769,20 @@ export default function RoomDetail() {
                 <div className="flex-1">
                   <label className="block text-xs font-medium mb-1 text-neutral-600 dark:text-neutral-400">Name</label>
                   <input
-                    className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition ${
+                      memberName.trim() && validateMemberName(memberName) 
+                        ? 'border-red-300 dark:border-red-700 bg-red-50/70 dark:bg-red-950/40 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                        : 'border-neutral-300 dark:border-neutral-700 bg-white/70 dark:bg-neutral-950/40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    }`}
                     value={memberName}
                     onChange={(e) => setMemberName(e.target.value)}
                     placeholder="Alice"
                   />
+                  {memberName.trim() && validateMemberName(memberName) && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {validateMemberName(memberName)}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="submit"
@@ -609,5 +985,6 @@ export default function RoomDetail() {
       )}
       
     </div>
+    </>
   );
 }
