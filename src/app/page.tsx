@@ -11,11 +11,13 @@ import {
 } from "@/components";
 import { RoomCreateModal, LoginModal } from "@/components/ui/modals";
 
-type Room = { id: number; name: string };
+type OwnedRoom = { id: number; name: string; type: 'owned' };
+type MemberRoom = { id: number; name: string; type: 'member'; ownerName: string };
 type User = { id: number; email: string; name: string };
 
 export default function Home() {
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [ownedRooms, setOwnedRooms] = useState<OwnedRoom[]>([]);
+  const [memberRooms, setMemberRooms] = useState<MemberRoom[]>([]);
   const [creating, setCreating] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -59,8 +61,9 @@ export default function Home() {
       const res = await fetch("/api/rooms");
       if (res.ok) {
         const data = await res.json();
-        // Quick response - no artificial delay
-        setRooms(data);
+        // Handle new API response format
+        setOwnedRooms(data.ownedRooms || []);
+        setMemberRooms(data.memberRooms || []);
         setRoomsLoading(false);
       }
     } catch (error) {
@@ -119,7 +122,8 @@ export default function Home() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
-      setRooms([]);
+      setOwnedRooms([]);
+      setMemberRooms([]);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -137,7 +141,7 @@ export default function Home() {
       >
         <Hero onCreateRoom={openCreateModal} />
         <div id="stats">
-          <StatsSection stats={{ count: rooms.length }} />
+          <StatsSection stats={{ count: ownedRooms.length + memberRooms.length }} />
         </div>
         <div id="features">
           <FeaturesSection />
@@ -225,7 +229,8 @@ export default function Home() {
                 </div>
                 
                 <RoomGrid 
-                  rooms={rooms}
+                  ownedRooms={ownedRooms}
+                  memberRooms={memberRooms}
                   onDeleteRoom={deleteRoom}
                   onCreateRoom={openCreateModal}
                   creating={creating}

@@ -40,17 +40,61 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only return rooms belonging to the authenticated user
-    const rooms = await prisma.room.findMany({
+    // Get rooms the user owns
+    const ownedRooms = await prisma.room.findMany({
       where: {
         userId: user.id
       },
+      select: {
+        id: true,
+        name: true,
+        userId: true
+      },
       orderBy: {
-        id: 'desc' // Show newest rooms first
+        id: 'desc'
       }
     });
 
-    return NextResponse.json(rooms);
+    // Get rooms the user is a member of (invited to)
+    const memberRooms = await prisma.room.findMany({
+      where: {
+        roomMembers: {
+          some: {
+            userId: user.id
+          }
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        user: {
+          select: {
+            name: true
+          }
+        }
+      },
+      orderBy: {
+        id: 'desc'
+      }
+    });
+
+    // Format the response to include room type
+    const response = {
+      ownedRooms: ownedRooms.map(room => ({
+        id: room.id,
+        name: room.name,
+        type: 'owned'
+      })),
+      memberRooms: memberRooms.map(room => ({
+        id: room.id,
+        name: room.name,
+        type: 'member',
+        ownerName: room.user.name
+      }))
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching rooms:', error);
     return NextResponse.json(
