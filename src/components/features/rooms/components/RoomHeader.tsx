@@ -119,34 +119,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
           </div>
         )}
 
-        {/* Analytics Button */}
-        {billCount > 0 && (
-          <div>
-            <button
-              onClick={onViewAnalytics}
-              className="w-full group relative overflow-hidden rounded-xl border border-blue-200 dark:border-blue-700/50 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 px-6 py-4 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-900/50 dark:hover:to-blue-800/50 transition-all duration-200"
-            >
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                    View Analytics Dashboard
-                  </div>
-                  <div className="text-xs text-blue-600/70 dark:text-blue-400/70">
-                    Detailed insights and expense breakdowns
-                  </div>
-                </div>
-                <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </button>
-          </div>
-        )}
+     
       </div>
       
       {/* Background Effects */}

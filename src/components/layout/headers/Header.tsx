@@ -96,7 +96,7 @@ export default function Header() {
           {/* Navigation with Morphing Indicators */}
           <nav className="hidden lg:flex items-center">
             <div className="relative flex items-center gap-1 bg-white/10 dark:bg-black/20 backdrop-blur-xl rounded-full p-1 border border-white/20 dark:border-white/10">
-              {['Features', 'Rooms', 'How it works'].map((item) => (
+              {['Features', 'How it works','Rooms'].map((item) => (
                 <button
                   key={item}
                   onClick={() => smoothScrollTo(item.toLowerCase().replace(/\s+/g, '-'))}
@@ -159,17 +159,7 @@ export default function Header() {
       {/* Mobile Navigation Overlay */}
       <div className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
         <div className="absolute top-20 left-4 right-4 bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 p-6">
-          <nav className="space-y-4">
-            {['Features', 'Rooms', 'How it works', 'Contact'].map((item) => (
-              <button
-                key={item}
-                onClick={() => smoothScrollTo(item.toLowerCase().replace(/\s+/g, '-'))}
-                className="block w-full text-left text-lg font-medium text-slate-800 dark:text-slate-200 hover:text-purple-600 transition-colors duration-300 font-roboto-mono"
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
+    
         </div>
       </div>
 

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ExpenseAnalytics } from "@/components";
 
-// Import all our new components and hooks
 import { useRoomData } from "@/components/features/rooms/hooks/useRoomData";
 import { useNotifications } from "@/components/features/rooms/hooks/useNotifications";
 import { NotificationContainer } from "@/components/features/rooms/components/NotificationContainer";
@@ -18,27 +17,18 @@ export default function RoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
   const router = useRouter();
   const rid = Number(roomId);
-
-  // UI state
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
-  const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentPeriod = new Date().toISOString().slice(0, 7);
 
-  // Initialize notifications
   const { notifications, addNotification, removeNotification } = useNotifications();
 
-  // Main data hook - handles all room data, authentication, and operations
   const {
-    // Auth state
     authLoading,
     accessDenied,
-    
-    // Data state
     room,
     members,
     bills,
     summary,
-    
-    // Operations
     addMember,
     addBill,
     markPaid,
@@ -60,7 +50,7 @@ export default function RoomDetail() {
     );
   }
 
-  // Handle access denied (only check if not loading)
+  // Access denied
   if (accessDenied && !authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 px-4">
@@ -96,7 +86,7 @@ export default function RoomDetail() {
     );
   }
 
-  // Calculate totals and stats for components (provide defaults if data is still loading)
+  // Calculate totals and per-member balance
   const billTotals = bills.reduce((acc, bill) => {
     const totalAmount = bill.shares.reduce((sum, share) => sum + share.amountCents, 0);
     const paidAmount = bill.shares.filter(s => s.paid).reduce((sum, share) => sum + share.amountCents, 0);
@@ -107,7 +97,6 @@ export default function RoomDetail() {
     return acc;
   }, { total: 0, paid: 0, outstanding: 0, paidShares: 0 });
 
-  // Calculate per-member balance from summary
   const perMemberBalance = summary?.perMember ? 
     Object.fromEntries(
       Object.entries(summary.perMember).map(([key, value]) => [parseInt(key), value.cents])
@@ -115,13 +104,11 @@ export default function RoomDetail() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      {/* Notifications - Fixed position for better UX */}
       <NotificationContainer 
         notifications={notifications}
         onRemove={removeNotification}
       />
       
-      {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
@@ -144,7 +131,7 @@ export default function RoomDetail() {
         </nav>
 
         <div className="space-y-8">
-          {/* Header Section */}
+          {/* Header */}
           {room && (
             <RoomHeader
               room={room}
@@ -158,7 +145,7 @@ export default function RoomDetail() {
             />
           )}
 
-          {/* Tab Navigation - Enhanced UX */}
+          {/* Tab Navigation */}
           {room && (
             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-2 shadow-sm">
               <div className="flex items-center">
@@ -225,49 +212,15 @@ export default function RoomDetail() {
           {/* Main Content */}
           {room && activeTab === 'overview' && (
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-              {/* Sidebar - Better mobile experience */}
+              {/* Sidebar */}
               <div className="space-y-6 xl:col-span-4">
-                {/* Quick Actions Card */}
-                <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 shadow-sm">
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Quick Actions</h3>
-                  <div className="space-y-3">
-                    <button className="w-full flex items-center gap-3 p-3 text-left text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors duration-200">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-semibold">Add New Bill</div>
-                        <div className="text-xs opacity-70">Create expense to split</div>
-                      </div>
-                    </button>
-                    <button className="w-full flex items-center gap-3 p-3 text-left text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors duration-200">
-                      <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-semibold">Add Member</div>
-                        <div className="text-xs opacity-70">Invite someone new</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Room Access Members */}
                 <RoomAccessMembers roomId={rid} />
-                
-                {/* Members Card */}
                 <MembersCard
                   members={members}
                   perMemberBalance={perMemberBalance}
                   onAddMember={addMember}
                   onDeleteMember={deleteMember}
                 />
-
-                {/* New Bill Card */}
                 <NewBillCard
                   members={members}
                   onAddBill={addBill}
@@ -276,7 +229,6 @@ export default function RoomDetail() {
 
               {/* Main Content Area */}
               <div className="xl:col-span-8">
-                {/* Bills List */}
                 <BillsList
                   bills={bills}
                   members={members}
@@ -288,7 +240,7 @@ export default function RoomDetail() {
             </div>
           )}
 
-          {/* Analytics Tab */}
+          {/* Analytics */}
           {room && activeTab === 'analytics' && (
             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 shadow-sm">
               <ExpenseAnalytics members={members} bills={bills} />
