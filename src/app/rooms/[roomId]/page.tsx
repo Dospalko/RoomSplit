@@ -12,12 +12,14 @@ import { MembersCard } from "@/components/features/rooms/components/MembersCard"
 import { NewBillCard } from "@/components/features/rooms/components/NewBillCard";
 import { BillsList } from "@/components/features/rooms/components/BillsList";
 import { RoomAccessMembers } from "@/components/features/rooms/components/RoomAccessMembers";
+import { CategoryManager } from "@/components/features/rooms/components/CategoryManager";
+import { TagManager } from "@/components/features/rooms/components/TagManager";
 
 export default function RoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
   const router = useRouter();
   const rid = Number(roomId);
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'settings'>('overview');
   const currentPeriod = new Date().toISOString().slice(0, 7);
 
   const { notifications, addNotification, removeNotification } = useNotifications();
@@ -205,6 +207,32 @@ export default function RoomDetail() {
                     </div>
                   </div>
                 </button>
+
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`group relative flex-1 px-6 py-4 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                    activeTab === 'settings'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                      : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                      activeTab === 'settings' 
+                        ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' 
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700'
+                    }`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold">Settings</div>
+                      <div className="text-xs opacity-70">Categories & Tags</div>
+                    </div>
+                  </div>
+                </button>
               </div>
             </div>
           )}
@@ -245,6 +273,48 @@ export default function RoomDetail() {
           {room && activeTab === 'analytics' && (
             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 shadow-sm">
               <ExpenseAnalytics members={members} bills={bills} />
+            </div>
+          )}
+
+          {/* Settings */}
+          {room && activeTab === 'settings' && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                  Room Settings
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Manage categories and tags for better expense organization
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <CategoryManager roomId={rid} />
+                <TagManager roomId={rid} />
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5">
+                    i
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+                      Categories vs Tags
+                    </h3>
+                    <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                      <p>
+                        <strong>Categories:</strong> Use for major expense types (Food, Utilities, Rent). 
+                        Each bill can have one category. Categories help with budgeting and expense tracking.
+                      </p>
+                      <p>
+                        <strong>Tags:</strong> Use for additional descriptors (urgent, shared, personal). 
+                        Bills can have multiple tags. Tags help with filtering and organization.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

@@ -65,6 +65,32 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ roomId }) => {
     }
   };
 
+  const handleSeedDefaultCategories = async () => {
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/categories/seed`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Reload categories
+        const categoriesResponse = await fetch(`/api/rooms/${roomId}/categories`, {
+          credentials: 'include'
+        });
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData);
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to create default categories');
+      }
+    } catch (error) {
+      console.error('Failed to seed categories:', error);
+      alert('Failed to create default categories');
+    }
+  };
+
   const predefinedColors = [
     '#EF4444', '#F59E0B', '#10B981', '#3B82F6', 
     '#8B5CF6', '#EC4899', '#06B6D4', '#6B7280'
@@ -114,6 +140,21 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ roomId }) => {
           </div>
         ))}
       </div>
+
+      {/* No categories message with seed button */}
+      {categories.length === 0 && (
+        <div className="text-center py-8">
+          <div className="text-neutral-500 dark:text-neutral-400 mb-4">
+            No categories created yet
+          </div>
+          <button
+            onClick={handleSeedDefaultCategories}
+            className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors duration-200 border border-blue-200 dark:border-blue-800"
+          >
+            Create Default Categories
+          </button>
+        </div>
+      )}
 
       {/* Create New Category Modal */}
       {isCreating && (

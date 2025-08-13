@@ -138,3 +138,72 @@ export async function POST(request: NextRequest, ctx: Params) {
     );
   }
 }
+
+// DELETE /api/rooms/[roomId]/tags - Delete a tag
+export async function DELETE(request: NextRequest, ctx: Params) {
+  try {
+    const user = await getAuthenticatedUser(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const { roomId: roomIdStr } = await ctx.params;
+    const roomId = Number(roomIdStr);
+
+    if (!Number.isFinite(roomId)) {
+      return NextResponse.json(
+        { error: 'Invalid room ID' },
+        { status: 400 }
+      );
+    }
+
+    // Verify user has access to this room
+    const hasAccess = await verifyRoomAccess(roomId, user.id);
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Access denied - room not found or not accessible' },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const tagIdParam = searchParams.get("tagId");
+    const tagId = tagIdParam ? Number(tagIdParam) : NaN;
+    
+    if (!Number.isFinite(tagId)) {
+      return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
+    }
+
+    // Verify tag belongs to this room
+    const tag = await prisma.tag.findFirst({
+      where: {
+        id: tagId,
+        roomId
+      }
+    });
+
+    if (!tag) {
+      return NextResponse.json(
+        { error: "Tag not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the tag (this will cascade delete billTags due to foreign key constraints)
+    await prisma.tag.delete({ 
+      where: { id: tagId } 
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tag:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete tag' },
+      { status: 500 }
+    );
+  }
+}
