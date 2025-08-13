@@ -23,6 +23,7 @@ model Room {
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   members Member[]
   bills   Bill[]
+  invites RoomInvite[]
 }
 
 model Member {
@@ -62,4 +63,16 @@ model Share {
   paid        Boolean @default(false)
 
   @@unique([billId, memberId])
+}
+
+model RoomInvite {
+  id         String   @id @default(cuid())
+  roomId     Int
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  inviteCode String   @unique
+  expiresAt  DateTime
+  maxUses    Int?
+  usedCount  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
