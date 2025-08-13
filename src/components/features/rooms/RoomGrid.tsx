@@ -11,111 +11,133 @@ interface RoomCardProps {
 
 function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
   return (
-    <div className="group relative transform hover:-translate-y-2 transition-all duration-500">
-      {/* Glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-700 scale-110"></div>
-      
-      {/* Main card */}
-      <div className="relative rounded-3xl border border-slate-200/50 dark:border-slate-700/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-[0_20px_70px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_120px_rgba(0,0,0,0.2)] transition-all duration-700 overflow-hidden">
+    <div className="group relative transform perspective-1000">
+      {/* Main Glassmorphic Card */}
+      <div className="relative backdrop-blur-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/20 dark:border-white/10 rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_25px_80px_-15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_35px_120px_-15px_rgba(59,130,246,0.6)] transition-all duration-700 overflow-hidden group-hover:scale-[1.02] group-hover:-translate-y-2">
         
-        {/* Background gradient orbs */}
-        <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-        <div className="absolute -left-10 -bottom-10 w-32 h-32 rounded-full bg-gradient-to-tr from-emerald-400/20 to-cyan-500/20 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+        {/* Interactive Link Area */}
+        <Link href={`/rooms/${room.id}`} className="absolute inset-0 z-20" aria-label={`Enter ${room.name} room`}></Link>
         
-        {/* Link overlay */}
-        <Link href={`/rooms/${room.id}`} className="absolute inset-0 z-10" aria-label={`Open ${room.name}`}></Link>
-        
-        <div className="relative p-8">
-          {/* Header with room info */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="relative">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-2xl group-hover:shadow-3xl group-hover:scale-110 transition-all duration-500 overflow-hidden ${
+        <div className="relative p-10 z-10">
+          {/* Ultra-Premium Header */}
+          <div className="flex items-start justify-between mb-10">
+            <div className="flex items-center gap-5 min-w-0 flex-1">
+              <div className="relative group/avatar">
+                {/* Avatar with Holographic Effect */}
+                <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-black overflow-hidden transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 ${
                   isOwner 
-                    ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30' 
-                    : 'bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 shadow-blue-500/30'
+                    ? 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 shadow-[0_20px_40px_rgba(251,146,60,0.4)]' 
+                    : 'bg-gradient-to-br from-blue-500 via-violet-500 to-purple-600 shadow-[0_20px_40px_rgba(99,102,241,0.4)]'
                 }`}>
-                  <div className="absolute inset-0 bg-white/20 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
-                  <span className="relative font-space-mono">{room.name.slice(0,2).toUpperCase()}</span>
+                  
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover/avatar:translate-x-full transition-transform duration-1000"></div>
+                  
+                  {/* Particle Effect Background */}
+                  <div className="absolute inset-0">
+                    <div className="absolute top-2 left-2 w-1 h-1 bg-white/60 rounded-full animate-ping"></div>
+                    <div className="absolute bottom-3 right-3 w-1 h-1 bg-white/60 rounded-full animate-ping delay-300"></div>
+                    <div className="absolute top-1/2 left-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse delay-700"></div>
+                  </div>
+                  
+                  <span className="relative z-10 font-mono tracking-wider drop-shadow-lg">{room.name.slice(0,2).toUpperCase()}</span>
                 </div>
                 
-                {/* Role indicator */}
-                <div className={`absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center shadow-lg ${
+                {/* Floating Role Badge */}
+                <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 ${
                   isOwner
-                    ? 'bg-gradient-to-br from-yellow-400 to-amber-500'
-                    : 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                    ? 'bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 shadow-amber-400/50'
+                    : 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 shadow-emerald-400/50'
                 }`}>
                   {isOwner ? (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                   ) : (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <svg className="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </div>
+
+                {/* Pulsing Ring */}
+                <div className={`absolute inset-0 rounded-2xl border-2 border-opacity-0 group-hover:border-opacity-100 transition-all duration-700 ${
+                  isOwner ? 'border-amber-400' : 'border-blue-400'
+                } group-hover:scale-110 group-hover:animate-pulse`}></div>
               </div>
               
               <div className="min-w-0 flex-1">
-                <h3 className="font-black text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent truncate group-hover:scale-105 transition-transform duration-300">
+                <h3 className="text-2xl font-black tracking-tight mb-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent drop-shadow-sm group-hover:scale-105 transition-transform duration-500">
                   {room.name}
                 </h3>
-                <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 font-roboto-mono">
-                  <span className="flex items-center gap-1">
-                    <span className={`w-2 h-2 rounded-full animate-pulse ${isOwner ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
-                    {isOwner ? 'Owner' : `Member • ${room.type === 'member' ? (room as MemberRoom).ownerName : ''}`}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                    isOwner 
+                      ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                      : 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${isOwner ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse`}></div>
+                    {isOwner ? 'OWNER' : 'MEMBER'}
+                  </div>
+                  {!isOwner && room.type === 'member' && (
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      by {(room as MemberRoom).ownerName}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
             
-            {/* Delete button - only for owned rooms */}
+            {/* Ultra-Modern Delete Button */}
             {isOwner && (
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDeleteRoom(room.id); }}
-                className="relative z-20 w-10 h-10 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-300 flex items-center justify-center group/delete"
+                className="relative z-30 group/delete w-14 h-14 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-slate-600 dark:text-slate-300 hover:text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:border-red-400 transition-all duration-500 flex items-center justify-center hover:scale-110 hover:-rotate-12 shadow-lg hover:shadow-red-500/30"
                 title="Delete room"
               >
-                <svg className="w-5 h-5 group-hover/delete:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg className="w-6 h-6 transition-all duration-300 group-hover/delete:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
             )}
           </div>
           
-          {/* Room stats */}
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 font-roboto-mono">Role</span>
-              <span className={`inline-flex items-center gap-2 text-sm px-3 py-1 rounded-full font-bold ${
+          {/* Premium Status Indicators */}
+          <div className="space-y-5 mb-10">
+            <div className="flex items-center justify-between p-5 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all duration-500">
+              <span className="text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide">ROLE</span>
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm backdrop-blur-sm ${
                 isOwner
-                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
-                  : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                  ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                  : 'bg-gradient-to-r from-blue-500/20 to-violet-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30'
               }`}>
-                <span className={`w-2 h-2 rounded-full ${isOwner ? 'bg-amber-500' : 'bg-blue-500'}`}></span>
+                <div className={`w-2 h-2 rounded-full ${isOwner ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse`}></div>
                 {isOwner ? 'Owner' : 'Member'}
-              </span>
+              </div>
             </div>
             
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 font-roboto-mono">Status</span>
-              <span className="inline-flex items-center gap-2 text-sm px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Active
-              </span>
+            <div className="flex items-center justify-between p-5 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all duration-500">
+              <span className="text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide">STATUS</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-sm border border-emerald-500/30 backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                ACTIVE
+              </div>
             </div>
           </div>
           
-          {/* Action hint */}
-          <div className="flex items-center justify-center p-3 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 group-hover:border-blue-300 dark:group-hover:border-blue-600 transition-colors duration-300">
-            <span className="text-sm text-slate-500 dark:text-slate-400 font-roboto-mono group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-              Click to manage expenses →
-            </span>
+          {/* Call-to-Action with Premium Design */}
+          <div className="group/cta relative overflow-hidden rounded-2xl border border-white/30 backdrop-blur-xl bg-gradient-to-r from-white/10 to-white/5 p-5 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-400/50 transition-all duration-500 cursor-pointer">
+            <div className="relative flex items-center justify-center gap-3 text-slate-700 dark:text-slate-200 group-hover/cta:text-blue-700 dark:group-hover/cta:text-blue-300 transition-colors duration-500">
+              <svg className="w-6 h-6 group-hover/cta:scale-125 group-hover/cta:rotate-12 transition-all duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="font-bold tracking-wide text-lg">ENTER ROOM</span>
+              <div className="w-3 h-3 rounded-full bg-current animate-pulse group-hover/cta:scale-125 transition-transform duration-500"></div>
+            </div>
           </div>
         </div>
+
+        {/* Remove floating particles */}
       </div>
     </div>
   );
@@ -238,7 +260,7 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
 
       <div className="relative">
         {/* Enhanced header section */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16 gap-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-20 gap-6 max-w-8xl mx-auto px-8">
           <div className="text-center md:text-left">
             <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-white/90 to-slate-50/90 dark:from-slate-800/90 dark:to-slate-900/90 border border-white/20 dark:border-slate-700/50 px-6 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 mb-6 backdrop-blur-xl shadow-2xl shadow-black/5">
               <div className="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 animate-pulse"></div>
@@ -263,42 +285,72 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
           {!creating && (
             <button 
               onClick={onCreateRoom} 
-              className="group relative inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-8 py-4 text-lg font-bold shadow-[0_0_50px_rgba(59,130,246,0.3)] hover:shadow-[0_0_80px_rgba(59,130,246,0.5)] active:scale-95 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+              className="group relative inline-flex items-center gap-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-10 py-5 text-lg font-bold shadow-[0_20px_50px_rgba(59,130,246,0.4)] hover:shadow-[0_30px_80px_rgba(59,130,246,0.6)] active:scale-95 transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-blue-400/20"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center gap-3">
-                <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="font-space-mono">New Room</span>
+              <div className="relative flex items-center gap-4">
+                <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                  <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <span className="font-black tracking-wide">Create New Room</span>
               </div>
-              <div className="absolute inset-0 bg-white/20 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
+              <div className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
             </button>
           )}
         </div>
         
         {/* Room sections */}
-        <div className="space-y-16">
+        <div className="w-full px-4 lg:px-8 space-y-24">
           {/* Owned Rooms Section */}
           {ownedRooms.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Your Rooms
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {ownedRooms.length} room{ownedRooms.length !== 1 ? 's' : ''} you created
-                  </p>
+            <div className="relative">
+              {/* Epic Section Header */}
+              <div className="relative mb-12 group">
+                {/* Background Glow */}
+                <div className="absolute -inset-8 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-red-500/20 rounded-3xl blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-1000"></div>
+                
+                {/* Header Container */}
+                <div className="relative backdrop-blur-xl bg-gradient-to-r from-white/10 via-white/5 to-transparent border border-white/20 rounded-3xl p-8 shadow-[0_25px_80px_-15px_rgba(0,0,0,0.3)]">
+                  {/* Animated Background Elements */}
+                  <div className="absolute inset-0 opacity-40">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/10 rounded-3xl"></div>
+                    <div className="absolute -right-8 -top-4 w-24 h-24 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 blur-2xl animate-pulse"></div>
+                    <div className="absolute -left-6 -bottom-2 w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-400/20 to-amber-500/20 blur-xl animate-pulse delay-1000"></div>
+                  </div>
+
+                  <div className="relative flex items-center gap-6">
+                    {/* Crown Icon */}
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center shadow-[0_20px_40px_rgba(251,146,60,0.4)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
+                      <svg className="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className="text-4xl font-black tracking-tight mb-2 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 dark:from-amber-400 dark:via-orange-400 dark:to-red-400 bg-clip-text text-transparent">
+                        Your Rooms
+                      </h3>
+                      <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
+                        Rooms you created and manage • {ownedRooms.length} room{ownedRooms.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+
+                    {/* Floating Stats Badge */}
+                    <div className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 backdrop-blur-sm border border-amber-500/30 shadow-lg">
+                      <div className="text-3xl font-black text-amber-700 dark:text-amber-300">
+                        {ownedRooms.length}
+                      </div>
+                      <div className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+                        OWNED
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16">
                 {ownedRooms.map((r) => (
                   <RoomCard key={r.id} room={r} onDeleteRoom={onDeleteRoom} isOwner={true} />
                 ))}
@@ -308,24 +360,52 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
 
           {/* Member Rooms Section */}
           {memberRooms.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Invited Rooms
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {memberRooms.length} room{memberRooms.length !== 1 ? 's' : ''} you joined
-                  </p>
+            <div className="relative">
+              {/* Epic Section Header */}
+              <div className="relative mb-12 group">
+                {/* Background Glow */}
+                <div className="absolute -inset-8 bg-gradient-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20 rounded-3xl blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-1000"></div>
+                
+                {/* Header Container */}
+                <div className="relative backdrop-blur-xl bg-gradient-to-r from-white/10 via-white/5 to-transparent border border-white/20 rounded-3xl p-8 shadow-[0_25px_80px_-15px_rgba(0,0,0,0.3)]">
+                  {/* Animated Background Elements */}
+                  <div className="absolute inset-0 opacity-40">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/10 via-transparent to-violet-500/10 rounded-3xl"></div>
+                    <div className="absolute -right-8 -top-4 w-24 h-24 rounded-full bg-gradient-to-br from-blue-400/20 to-violet-500/20 blur-2xl animate-pulse"></div>
+                    <div className="absolute -left-6 -bottom-2 w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 blur-xl animate-pulse delay-1000"></div>
+                  </div>
+
+                  <div className="relative flex items-center gap-6">
+                    {/* Member Icon */}
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-violet-500 to-purple-600 flex items-center justify-center shadow-[0_20px_40px_rgba(99,102,241,0.4)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
+                      <svg className="w-8 h-8 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className="text-4xl font-black tracking-tight mb-2 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 dark:from-blue-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
+                        Invited Rooms
+                      </h3>
+                      <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
+                        Rooms you&apos;ve been invited to • {memberRooms.length} room{memberRooms.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+
+                    {/* Floating Stats Badge */}
+                    <div className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500/20 to-violet-500/20 backdrop-blur-sm border border-blue-500/30 shadow-lg">
+                      <div className="text-3xl font-black text-blue-700 dark:text-blue-300">
+                        {memberRooms.length}
+                      </div>
+                      <div className="text-xs font-bold text-blue-600 dark:text-blue-400 tracking-wider">
+                        JOINED
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16">
                 {memberRooms.map((r) => (
                   <RoomCard key={r.id} room={r} onDeleteRoom={onDeleteRoom} isOwner={false} />
                 ))}
