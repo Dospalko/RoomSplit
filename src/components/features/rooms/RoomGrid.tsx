@@ -16,9 +16,9 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
       <div className="relative backdrop-blur-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/20 dark:border-white/10 rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_25px_80px_-15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_35px_120px_-15px_rgba(59,130,246,0.6)] transition-all duration-700 overflow-hidden group-hover:scale-[1.02] group-hover:-translate-y-2">
         
         {/* Interactive Link Area */}
-        <Link href={`/rooms/${room.id}`} className="absolute inset-0 z-20" aria-label={`Enter ${room.name} room`}></Link>
+        <Link href={`/rooms/${room.id}`} className="absolute inset-0 z-10" aria-label={`Enter ${room.name} room`}></Link>
         
-        <div className="relative p-10 z-10">
+        <div className="relative p-10 z-20">
           {/* Ultra-Premium Header */}
           <div className="flex items-start justify-between mb-10">
             <div className="flex items-center gap-5 min-w-0 flex-1">
@@ -92,10 +92,10 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
             {isOwner && (
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDeleteRoom(room.id); }}
-                className="relative z-30 group/delete w-14 h-14 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-slate-600 dark:text-slate-300 hover:text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:border-red-400 transition-all duration-500 flex items-center justify-center hover:scale-110 hover:-rotate-12 shadow-lg hover:shadow-red-500/30"
+                className="relative z-40 group/delete w-14 h-14 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-slate-600 dark:text-slate-300 hover:text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:border-red-400 active:scale-90 transition-all duration-300 flex items-center justify-center hover:scale-110 hover:-rotate-12 shadow-lg hover:shadow-red-500/30"
                 title="Delete room"
               >
-                <svg className="w-6 h-6 transition-all duration-300 group-hover/delete:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 transition-all duration-300 group-hover/delete:scale-110 group-active/delete:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
@@ -126,14 +126,19 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
           </div>
           
           {/* Call-to-Action with Premium Design */}
-          <div className="group/cta relative overflow-hidden rounded-2xl border border-white/30 backdrop-blur-xl bg-gradient-to-r from-white/10 to-white/5 p-5 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-400/50 transition-all duration-500 cursor-pointer">
-            <div className="relative flex items-center justify-center gap-3 text-slate-700 dark:text-slate-200 group-hover/cta:text-blue-700 dark:group-hover/cta:text-blue-300 transition-colors duration-500">
-              <svg className="w-6 h-6 group-hover/cta:scale-125 group-hover/cta:rotate-12 transition-all duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span className="font-bold tracking-wide text-lg">ENTER ROOM</span>
-              <div className="w-3 h-3 rounded-full bg-current animate-pulse group-hover/cta:scale-125 transition-transform duration-500"></div>
-            </div>
+          <div className="relative z-30">
+            <button 
+              onClick={(e) => { e.preventDefault(); window.location.href = `/rooms/${room.id}`; }}
+              className="group/cta relative w-full overflow-hidden rounded-2xl border border-white/30 backdrop-blur-xl bg-gradient-to-r from-white/10 to-white/5 p-5 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-400/50 active:scale-95 transition-all duration-300 cursor-pointer"
+            >
+              <div className="relative flex items-center justify-center gap-3 text-slate-700 dark:text-slate-200 group-hover/cta:text-blue-700 dark:group-hover/cta:text-blue-300 transition-colors duration-300">
+                <svg className="w-6 h-6 group-hover/cta:scale-125 group-hover/cta:rotate-12 group-active/cta:scale-110 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span className="font-bold tracking-wide text-lg group-hover/cta:scale-105 transition-transform duration-300">ENTER ROOM</span>
+                <div className="w-3 h-3 rounded-full bg-current animate-pulse group-hover/cta:scale-125 group-active/cta:scale-110 transition-transform duration-300"></div>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -285,18 +290,16 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
           {!creating && (
             <button 
               onClick={onCreateRoom} 
-              className="group relative inline-flex items-center gap-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-10 py-5 text-lg font-bold shadow-[0_20px_50px_rgba(59,130,246,0.4)] hover:shadow-[0_30px_80px_rgba(59,130,246,0.6)] active:scale-95 transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-blue-400/20"
+              className="group relative inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-8 py-4 text-lg font-bold shadow-[0_0_50px_rgba(59,130,246,0.3)] hover:shadow-[0_0_80px_rgba(59,130,246,0.5)] active:scale-95 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-center gap-4">
-                <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
-                  <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <span className="font-black tracking-wide">Create New Room</span>
+              <div className="relative flex items-center gap-3">
+                <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="font-space-mono">New Room</span>
               </div>
-              <div className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
+              <div className="absolute inset-0 bg-white/20 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
             </button>
           )}
         </div>
