@@ -29,6 +29,7 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
   const [bills, setBills] = useState<Bill[]>([]);
   const [summary, setSummary] = useState<RoomSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
 
   // Authentication check
   useEffect(() => {
@@ -57,7 +58,12 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
   // Data loader
   const load = useCallback(async () => {
     if (!Number.isFinite(rid) || authLoading) return;
-    setLoading(true);
+    
+    // Only show loading spinner on initial load, not on subsequent refreshes
+    if (!hasInitiallyLoaded) {
+      setLoading(true);
+    }
+    
     try {
       const [roomData, m, b, s] = await Promise.all([
         fetch(`/api/rooms/${rid}`, {
@@ -122,6 +128,7 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
       setBills(b);
       setSummary(s && !s.error ? s : null);
       setLoading(false);
+      setHasInitiallyLoaded(true);
       
       // Welcome notification only on first load
       if (roomData?.name && !welcomeShownRef.current) {
@@ -134,8 +141,9 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
         addNotification('error', 'Failed to Load Data', error.message);
       }
       setLoading(false);
+      setHasInitiallyLoaded(true);
     }
-  }, [rid, period, authLoading, router, addNotification]);
+  }, [rid, period, authLoading, router, addNotification, hasInitiallyLoaded]);
 
   useEffect(() => { 
     if (!authLoading && user) {

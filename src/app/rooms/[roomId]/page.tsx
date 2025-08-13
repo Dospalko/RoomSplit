@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ExpenseAnalytics, SkeletonLoader } from "@/components";
+import { ExpenseAnalytics } from "@/components";
 
 // Import all our new components and hooks
 import { useRoomData } from "@/components/features/rooms/hooks/useRoomData";
@@ -37,9 +37,6 @@ export default function RoomDetail() {
     bills,
     summary,
     
-    // Loading states
-    loading,
-    
     // Operations
     addMember,
     addBill,
@@ -49,17 +46,8 @@ export default function RoomDetail() {
     deleteRoom
   } = useRoomData({ rid, period: currentPeriod, addNotification });
 
-  // Handle authentication loading
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <SkeletonLoader />
-      </div>
-    );
-  }
-
-  // Handle access denied
-  if (accessDenied) {
+  // Handle access denied (only check if not loading)
+  if (accessDenied && !authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto">
@@ -89,16 +77,7 @@ export default function RoomDetail() {
     );
   }
 
-  // Handle loading state
-  if (loading || !room) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <SkeletonLoader />
-      </div>
-    );
-  }
-
-  // Calculate totals and stats for components
+  // Calculate totals and stats for components (provide defaults if data is still loading)
   const billTotals = bills.reduce((acc, bill) => {
     const totalAmount = bill.shares.reduce((sum, share) => sum + share.amountCents, 0);
     const paidAmount = bill.shares.filter(s => s.paid).reduce((sum, share) => sum + share.amountCents, 0);
@@ -124,78 +103,83 @@ export default function RoomDetail() {
       />
       
       <div className="space-y-10 pb-16">
-        {/* Header */}
-        <RoomHeader
-          room={room}
-          rid={rid}
-          summary={summary}
-          memberCount={members.length}
-          billCount={bills.length}
-          totals={billTotals}
-          onDeleteRoom={deleteRoom}
-          onViewAnalytics={() => setActiveTab('analytics')}
-        />
+        {/* Header - show even if room is still loading */}
+        {room && (
+          <RoomHeader
+            room={room}
+            rid={rid}
+            summary={summary}
+            memberCount={members.length}
+            billCount={bills.length}
+            totals={billTotals}
+            onDeleteRoom={deleteRoom}
+            onViewAnalytics={() => setActiveTab('analytics')}
+          />
+        )}
 
-        {/* Tab Navigation */}
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-4 shadow-sm mb-8">
-          <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1.5">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`group relative flex-1 px-6 py-3 text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] ${
-                activeTab === 'overview'
-                  ? 'bg-gradient-to-r from-white to-blue-50 dark:from-neutral-700 dark:to-blue-900/30 text-neutral-900 dark:text-neutral-100 shadow-lg shadow-blue-500/10'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-white/50 dark:hover:bg-neutral-700/50'
-              }`}
-            >
-              <div className="flex items-center gap-3 justify-center">
-                <div className={`p-1 rounded-lg transition-all duration-300 ${
-                  activeTab === 'overview' 
-                    ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
-                    : 'group-hover:bg-blue-500/5 group-hover:text-blue-500'
-                }`}>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
+        {/* Tab Navigation - show only when room data is available */}
+        {room && (
+          <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-4 shadow-sm mb-8">
+            <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1.5">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`group relative flex-1 px-6 py-3 text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] ${
+                  activeTab === 'overview'
+                    ? 'bg-gradient-to-r from-white to-blue-50 dark:from-neutral-700 dark:to-blue-900/30 text-neutral-900 dark:text-neutral-100 shadow-lg shadow-blue-500/10'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-white/50 dark:hover:bg-neutral-700/50'
+                }`}
+              >
+                <div className="flex items-center gap-3 justify-center">
+                  <div className={`p-1 rounded-lg transition-all duration-300 ${
+                    activeTab === 'overview' 
+                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                      : 'group-hover:bg-blue-500/5 group-hover:text-blue-500'
+                  }`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <span>Overview</span>
                 </div>
-                <span>Overview</span>
-              </div>
-              {activeTab === 'overview' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-lg" />
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`group relative flex-1 px-6 py-3 text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] ${
-                activeTab === 'analytics'
-                  ? 'bg-gradient-to-r from-white to-purple-50 dark:from-neutral-700 dark:to-purple-900/30 text-neutral-900 dark:text-neutral-100 shadow-lg shadow-purple-500/10'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-white/50 dark:hover:bg-neutral-700/50'
-              }`}
-            >
-              <div className="flex items-center gap-3 justify-center">
-                <div className={`p-1 rounded-lg transition-all duration-300 ${
-                  activeTab === 'analytics' 
-                    ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' 
-                    : 'group-hover:bg-purple-500/5 group-hover:text-purple-500'
-                }`}>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span>Analytics</span>
-                {bills.length > 0 && (
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg shadow-purple-500/30 animate-pulse">
-                    {bills.length}
-                  </span>
+                {activeTab === 'overview' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-lg" />
                 )}
-              </div>
-              {activeTab === 'analytics' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-lg" />
-              )}
-            </button>
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`group relative flex-1 px-6 py-3 text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] ${
+                  activeTab === 'analytics'
+                    ? 'bg-gradient-to-r from-white to-purple-50 dark:from-neutral-700 dark:to-purple-900/30 text-neutral-900 dark:text-neutral-100 shadow-lg shadow-purple-500/10'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-white/50 dark:hover:bg-neutral-700/50'
+                }`}
+              >
+                <div className="flex items-center gap-3 justify-center">
+                  <div className={`p-1 rounded-lg transition-all duration-300 ${
+                    activeTab === 'analytics' 
+                      ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' 
+                      : 'group-hover:bg-purple-500/5 group-hover:text-purple-500'
+                  }`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span>Analytics</span>
+                  {bills.length > 0 && (
+                    <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg shadow-purple-500/30 animate-pulse">
+                      {bills.length}
+                    </span>
+                  )}
+                </div>
+                {activeTab === 'analytics' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-lg" />
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {activeTab === 'overview' && (
+        {/* Main Content - show only when room data is available */}
+        {room && activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column */}
             <div className="space-y-6 lg:col-span-4 order-2 lg:order-1">
@@ -228,7 +212,7 @@ export default function RoomDetail() {
           </div>
         )}
 
-        {activeTab === 'analytics' && (
+        {room && activeTab === 'analytics' && (
           <div className="mt-8">
             <ExpenseAnalytics members={members} bills={bills} />
           </div>
