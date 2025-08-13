@@ -12,6 +12,7 @@ import { RoomHeader } from "@/components/features/rooms/components/RoomHeader";
 import { MembersCard } from "@/components/features/rooms/components/MembersCard";
 import { NewBillCard } from "@/components/features/rooms/components/NewBillCard";
 import { BillsList } from "@/components/features/rooms/components/BillsList";
+import { RoomAccessMembers } from "@/components/features/rooms/components/RoomAccessMembers";
 
 export default function RoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -183,6 +184,9 @@ export default function RoomDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column */}
             <div className="space-y-6 lg:col-span-4 order-2 lg:order-1">
+              {/* Room Access Members */}
+              <RoomAccessMembers roomId={rid} />
+              
               {/* Members Card */}
               <MembersCard
                 members={members}
