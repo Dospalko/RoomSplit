@@ -26,6 +26,8 @@ model Room {
   bills   Bill[]
   invites RoomInvite[]
   roomMembers RoomMember[]
+  categories Category[]
+  tags    Tag[]
 }
 
 model Member {
@@ -43,9 +45,12 @@ model Bill {
   period       String   // "YYYY-MM"
   rule         SplitRule @default(EQUAL)
   meta         Json?
+  categoryId   Int?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   roomId       Int
   room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   shares       Share[]
+  billTags     BillTag[]
   createdAt    DateTime @default(now())
 }
 
@@ -88,4 +93,40 @@ model RoomMember {
   joinedAt DateTime @default(now())
   
   @@unique([userId, roomId])
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  color       String   @default("#3B82F6") // Hex color for UI
+  icon        String?  // Icon name/emoji
+  roomId      Int
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  bills       Bill[]
+  createdAt   DateTime @default(now())
+  
+  @@unique([name, roomId]) // Unique category name per room
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String   @default("#6B7280") // Hex color for UI
+  roomId    Int
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  billTags  BillTag[]
+  createdAt DateTime @default(now())
+  
+  @@unique([name, roomId]) // Unique tag name per room
+}
+
+model BillTag {
+  id     Int  @id @default(autoincrement())
+  billId Int
+  bill   Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  tagId  Int
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([billId, tagId]) // A bill can have each tag only once
 }
