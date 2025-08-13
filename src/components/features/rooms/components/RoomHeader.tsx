@@ -30,88 +30,128 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
 }) => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const statCard = (label: string, value: string, extra?: string, accent?: string) => (
-    <div className={`relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-sm p-4 shadow-sm group`}>      
-      <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">{label}</div>
-      <div className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">{value}</div>
-      {extra && <div className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">{extra}</div>}
-      <div className={`absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br ${accent || "from-blue-100/60 via-transparent to-transparent dark:from-blue-500/10"}`}></div>
+    <div className={`relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 hover:shadow-sm transition-all duration-200 group`}>      
+      <div className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-medium mb-2">{label}</div>
+      <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 mb-1">{value}</div>
+      {extra && <div className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">{extra}</div>}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${accent || "bg-blue-50/50 dark:bg-blue-950/20"}`}></div>
     </div>
   );
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 px-6 py-8 shadow-sm">
-      <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {room?.name || `Room #${rid}`}
-          </h1>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button 
-              onClick={() => setShowInviteModal(true)}
-              className="group relative px-4 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 hover:border-blue-300/80 dark:hover:border-blue-600/60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative flex items-center gap-2">
-                <svg className="w-3 h-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-neutral-50 via-white to-blue-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-blue-950 shadow-sm">
+      {/* Main Header Section */}
+      <div className="px-6 py-6 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Room Title & Description */}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold tracking-tight mb-3">
+              {room?.name || `Room #${rid}`}
+            </h1>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 max-w-2xl">
+              Sleduj členov, vytváraj účty a označuj platby. Elegantné rozdelenie nákladov v reálnom čase.
+            </p>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3">
+              <button 
+                onClick={() => setShowInviteModal(true)}
+                className="group relative px-5 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700/50 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span>Invite roommates</span>
-              </div>
-            </button>
-            <button 
-              onClick={onDeleteRoom} 
-              className="group relative px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-200/60 dark:border-red-700/40 rounded-xl hover:from-red-100 hover:to-rose-100 dark:hover:from-red-900/30 dark:hover:to-rose-900/30 hover:border-red-300/80 dark:hover:border-red-600/60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative flex items-center gap-2">
-                <svg className="w-3 h-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Invite Members
+              </button>
+              
+              <button 
+                onClick={onDeleteRoom} 
+                className="group relative px-5 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-700/50 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 hover:border-red-300 dark:hover:border-red-600 transition-all duration-200 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span>Delete room</span>
+                Delete Room
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="px-6 py-6">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            Room Overview
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {statCard("Members", String(memberCount), undefined, "from-blue-50 dark:from-blue-950/20")}
+            {statCard("Bills", String(billCount), undefined, "from-purple-50 dark:from-purple-950/20")}
+            {statCard("Outstanding", fmt(totals.outstanding), `${(totals.paidShares && Math.round((totals.paid / (totals.total||1))*100)) || 0}% paid`, "from-amber-50 dark:from-amber-950/20")}
+            {statCard("Total", fmt(totals.total), `${fmt(totals.paid)} paid`, "from-emerald-50 dark:from-emerald-950/20")}
+          </div>
+        </div>
+
+        {/* Period Summary */}
+        {summary && (
+          <div className="mb-6">
+            <h3 className="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-3">
+              Current Period
+            </h3>
+            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm p-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <span className="text-neutral-500 dark:text-neutral-400">Period:</span> <span className="font-semibold">{summary.period}</span>
+                  <span className="mx-3 text-neutral-300 dark:text-neutral-600">•</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">Total:</span> <span className="font-semibold">{fmt(summary.totalCents)}</span>
+                </div>
+                <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {Object.values(summary.perMember).map((pm) => (
+                      <span key={pm.name} className="whitespace-nowrap">
+                        <span className="font-medium">{pm.name}:</span> {fmt(pm.cents)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Analytics Button */}
+        {billCount > 0 && (
+          <div>
+            <button
+              onClick={onViewAnalytics}
+              className="w-full group relative overflow-hidden rounded-xl border border-blue-200 dark:border-blue-700/50 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 px-6 py-4 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-900/50 dark:hover:to-blue-800/50 transition-all duration-200"
+            >
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                    View Analytics Dashboard
+                  </div>
+                  <div className="text-xs text-blue-600/70 dark:text-blue-400/70">
+                    Detailed insights and expense breakdowns
+                  </div>
+                </div>
+                <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </button>
           </div>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-            Sleduj členov, vytváraj účty a označuj platby. Elegantné rozdelenie nákladov v reálnom čase.
-          </p>
-          {summary && (
-            <div className="mt-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm px-4 py-3 text-xs md:text-sm flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">
-                Period: <b>{summary.period}</b> • Total: <b>{fmt(summary.totalCents)}</b>
-              </span>
-              <span className="text-neutral-500 dark:text-neutral-400 flex flex-wrap gap-x-3 gap-y-1">
-                {Object.values(summary.perMember).map((pm) => (
-                  <span key={pm.name}>{pm.name}: {fmt(pm.cents)}</span>
-                ))}
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-[260px] md:min-w-[520px]">
-          {statCard("Members", String(memberCount))}
-          {statCard("Bills", String(billCount))}
-          {statCard("Outstanding", fmt(totals.outstanding), `${(totals.paidShares && Math.round((totals.paid / (totals.total||1))*100)) || 0}% paid`, "from-amber-100/70 dark:from-amber-500/20")}
-          {statCard("Total", fmt(totals.total), `${fmt(totals.paid)} paid`, "from-emerald-100/70 dark:from-emerald-500/20")}
-          {billCount > 0 && (
-            <div className="sm:col-span-2 md:col-span-4 mt-2">
-              <button
-                onClick={onViewAnalytics}
-                className="w-full group relative overflow-hidden rounded-xl border border-blue-200/50 dark:border-blue-700/40 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 px-4 py-3 text-sm font-medium text-blue-700 dark:text-blue-300 hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900/50 dark:hover:to-purple-900/50 transition-all duration-300 transform hover:scale-[1.02]"
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>View Analytics Dashboard</span>
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                </div>
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
-      <div className="absolute -right-32 -top-32 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-500/10 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute -left-24 -bottom-24 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-400/10 to-cyan-500/10 blur-3xl pointer-events-none -z-10" />
+      
+      {/* Background Effects */}
+      <div className="absolute -right-32 -top-32 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/5 to-purple-500/5 blur-3xl pointer-events-none -z-10" />
+      <div className="absolute -left-24 -bottom-24 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-400/5 to-cyan-500/5 blur-3xl pointer-events-none -z-10" />
       
       {/* Room Invite Modal */}
       <RoomInviteModal
