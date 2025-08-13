@@ -142,3 +142,72 @@ export async function POST(request: NextRequest, ctx: Params) {
     );
   }
 }
+
+// DELETE /api/rooms/[roomId]/categories - Delete a category
+export async function DELETE(request: NextRequest, ctx: Params) {
+  try {
+    const user = await getAuthenticatedUser(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const { roomId: roomIdStr } = await ctx.params;
+    const roomId = Number(roomIdStr);
+
+    if (!Number.isFinite(roomId)) {
+      return NextResponse.json(
+        { error: 'Invalid room ID' },
+        { status: 400 }
+      );
+    }
+
+    // Verify user has access to this room
+    const hasAccess = await verifyRoomAccess(roomId, user.id);
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Access denied - room not found or not accessible' },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const categoryIdParam = searchParams.get("categoryId");
+    const categoryId = categoryIdParam ? Number(categoryIdParam) : NaN;
+    
+    if (!Number.isFinite(categoryId)) {
+      return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
+    }
+
+    // Verify category belongs to this room
+    const category = await prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        roomId
+      }
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the category (this will set categoryId to null on bills)
+    await prisma.category.delete({ 
+      where: { id: categoryId } 
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete category' },
+      { status: 500 }
+    );
+  }
+}

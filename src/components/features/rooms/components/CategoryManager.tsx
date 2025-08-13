@@ -91,6 +91,29 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ roomId }) => {
     }
   };
 
+  const handleDeleteCategory = async (categoryId: number) => {
+    if (!confirm('Are you sure you want to delete this category? This will remove it from all bills.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/categories?categoryId=${categoryId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        setCategories(categories.filter(cat => cat.id !== categoryId));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to delete category');
+      }
+    } catch (error) {
+      console.error('Failed to delete category:', error);
+      alert('Failed to delete category');
+    }
+  };
+
   const predefinedColors = [
     '#EF4444', '#F59E0B', '#10B981', '#3B82F6', 
     '#8B5CF6', '#EC4899', '#06B6D4', '#6B7280'
@@ -111,32 +134,52 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ roomId }) => {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="space-y-3">
         {categories.map((category) => (
           <div
             key={category.id}
-            className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50"
+            className="group p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm transition-all duration-200"
           >
-            <div className="flex items-center gap-3 mb-2">
-              {category.icon && <span className="text-lg">{category.icon}</span>}
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: category.color }}
-              />
-              <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                {category.name}
-              </span>
-            </div>
-            {category.description && (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-                {category.description}
-              </p>
-            )}
-            {category._count && (
-              <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                {category._count.bills} bills
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {category.icon && (
+                  <div className="w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-lg">
+                    {category.icon}
+                  </div>
+                )}
+                <div
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: category.color }}
+                />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                    {category.name}
+                  </h4>
+                  {category.description && (
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 truncate">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
+              
+              <div className="flex items-center gap-3">
+                {category._count && (
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700 px-2 py-1 rounded-md">
+                    {category._count.bills} bills
+                  </div>
+                )}
+                <button
+                  onClick={() => handleDeleteCategory(category.id)}
+                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all duration-200"
+                  title="Delete category"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
