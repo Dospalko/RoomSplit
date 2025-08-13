@@ -3,7 +3,46 @@ export type Member = { id: number; name: string };
 export type Share = { id: number; memberId: number; amountCents: number; paid: boolean; member?: { id: number; name: string } };
 export type BillRule = 'EQUAL' | 'PERCENT' | 'WEIGHT';
 export type BillMeta = { percents?: Record<string, number>; weights?: Record<string, number> } | null;
-export type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[]; rule?: BillRule; meta?: BillMeta };
+
+// Category and Tag types
+export type Category = {
+  id: number;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  roomId: number;
+  _count?: { bills: number };
+};
+
+export type Tag = {
+  id: number;
+  name: string;
+  color: string;
+  roomId: number;
+  _count?: { billTags: number };
+};
+
+export type BillTag = {
+  id: number;
+  billId: number;
+  tagId: number;
+  tag: Tag;
+};
+
+export type Bill = { 
+  id: number; 
+  title: string; 
+  amountCents: number; 
+  period: string; 
+  shares: Share[]; 
+  rule?: BillRule; 
+  meta?: BillMeta;
+  categoryId?: number;
+  category?: Category;
+  billTags?: BillTag[];
+};
+
 export type User = { id: number; email: string; name: string };
 export type Room = { id: number; name: string };
 

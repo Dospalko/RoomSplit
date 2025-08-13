@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { z } from "zod";
+import { createDefaultCategories } from "@/lib/defaultCategories";
 
 // Helper function to get authenticated user from session
 async function getAuthenticatedUser(request: NextRequest) {
@@ -131,6 +132,9 @@ export async function POST(request: NextRequest) {
         userId: user.id
       } 
     });
+
+    // Create default categories for the new room
+    await createDefaultCategories(room.id);
 
     return NextResponse.json(room, { status: 201 });
   } catch (error) {

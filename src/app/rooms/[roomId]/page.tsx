@@ -223,6 +223,7 @@ export default function RoomDetail() {
                 />
                 <NewBillCard
                   members={members}
+                  roomId={rid}
                   onAddBill={addBill}
                 />
               </div>

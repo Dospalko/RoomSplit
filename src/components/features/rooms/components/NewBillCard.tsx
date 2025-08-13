@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { Member, BillRule, BillMeta } from '../types';
+import { CategoryTagSelector } from './CategoryTagSelector';
 
 interface NewBillCardProps {
   members: Member[];
-  onAddBill: (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta) => Promise<void>;
+  roomId: number;
+  onAddBill: (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta, categoryId?: number, tagIds?: number[]) => Promise<void>;
 }
 
-export const NewBillCard: React.FC<NewBillCardProps> = ({ members, onAddBill }) => {
+export const NewBillCard: React.FC<NewBillCardProps> = ({ members, roomId, onAddBill }) => {
   const [title, setTitle] = useState("Electricity");
   const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
   const [amount, setAmount] = useState("80");
   const [rule, setRule] = useState<BillRule>('EQUAL');
   const [percentMeta, setPercentMeta] = useState<Record<number, string>>({});
   const [weightMeta, setWeightMeta] = useState<Record<number, string>>({});
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,13 +41,15 @@ export const NewBillCard: React.FC<NewBillCardProps> = ({ members, onAddBill }) 
         meta = { weights };
       }
 
-      await onAddBill(title, amount, period, rule, meta);
+      await onAddBill(title, amount, period, rule, meta, selectedCategoryId, selectedTagIds);
       
       // Reset form
       setTitle("Electricity");
       setAmount("80");
       setPercentMeta({});
       setWeightMeta({});
+      setSelectedCategoryId(undefined);
+      setSelectedTagIds([]);
     } finally {
       setIsSubmitting(false);
     }
@@ -144,6 +150,18 @@ export const NewBillCard: React.FC<NewBillCardProps> = ({ members, onAddBill }) 
               </div>
             )}
           </div>
+          
+          {/* Category and Tags Section */}
+          <div className="sm:col-span-2">
+            <CategoryTagSelector
+              roomId={roomId}
+              selectedCategoryId={selectedCategoryId}
+              selectedTagIds={selectedTagIds}
+              onCategoryChange={setSelectedCategoryId}
+              onTagsChange={setSelectedTagIds}
+            />
+          </div>
+          
           <div className="sm:col-span-2">
             <button
               type="submit"

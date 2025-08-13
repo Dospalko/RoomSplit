@@ -41,6 +41,12 @@ export async function GET(request: NextRequest, ctx: Params) {
       orderBy: { id: "desc" },
       include: {
         shares: { include: { member: true } },
+        category: true,
+        billTags: {
+          include: {
+            tag: true
+          }
+        }
       },
     });
     
@@ -61,6 +67,8 @@ const BillCreate = z.object({
   period: z.string().regex(/^\d{4}-\d{2}$/),
   rule: z.enum(["EQUAL", "PERCENT", "WEIGHT"]).optional(),
   meta: z.any().optional(),
+  categoryId: z.number().optional(),
+  tagIds: z.array(z.number()).optional(),
 });
 
 export async function POST(req: Request, ctx: Params) {
@@ -70,7 +78,7 @@ export async function POST(req: Request, ctx: Params) {
   const parsed = BillCreate.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "Invalid" }, { status: 400 });
 
-  const { title, amount, period } = parsed.data;
+  const { title, amount, period, categoryId, tagIds } = parsed.data;
   const rule = parsed.data.rule ?? "EQUAL";
   const meta = parsed.data.meta ?? null;
 
@@ -172,15 +180,39 @@ export async function POST(req: Request, ctx: Params) {
           period,
           rule: rule as any,
           meta: storeMeta,
+          categoryId,
         },
       });
+      
+      // Create shares
       for (const a of allocations) {
         await tx.share.create({ data: { billId: b.id, memberId: a.memberId, amountCents: a.cents } });
       }
+      
+      // Create bill tags if provided
+      if (tagIds && tagIds.length > 0) {
+        for (const tagId of tagIds) {
+          await tx.billTag.create({
+            data: {
+              billId: b.id,
+              tagId
+            }
+          });
+        }
+      }
+      
       return b;
     });  const out = await prisma.bill.findUnique({
     where: { id: bill.id },
-    include: { shares: { include: { member: true } } },
+    include: { 
+      shares: { include: { member: true } },
+      category: true,
+      billTags: {
+        include: {
+          tag: true
+        }
+      }
+    },
   });
 
   return NextResponse.json(out, { status: 201 });
