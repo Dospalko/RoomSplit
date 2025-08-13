@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Room, RoomSummary, fmt } from '../types';
+import RoomInviteModal from './RoomInviteModal';
 
 interface RoomHeaderProps {
   room: Room | null;
@@ -27,6 +28,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
   onDeleteRoom,
   onViewAnalytics
 }) => {
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const statCard = (label: string, value: string, extra?: string, accent?: string) => (
     <div className={`relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-sm p-4 shadow-sm group`}>      
       <div className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium mb-1">{label}</div>
@@ -44,6 +46,18 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
             {room?.name || `Room #${rid}`}
           </h1>
           <div className="mt-3 flex flex-wrap gap-2">
+            <button 
+              onClick={() => setShowInviteModal(true)}
+              className="group relative px-4 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/60 dark:border-blue-700/40 rounded-xl hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 hover:border-blue-300/80 dark:hover:border-blue-600/60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex items-center gap-2">
+                <svg className="w-3 h-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Invite roommates</span>
+              </div>
+            </button>
             <button 
               onClick={onDeleteRoom} 
               className="group relative px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-200/60 dark:border-red-700/40 rounded-xl hover:from-red-100 hover:to-rose-100 dark:hover:from-red-900/30 dark:hover:to-rose-900/30 hover:border-red-300/80 dark:hover:border-red-600/60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 overflow-hidden"
@@ -98,6 +112,14 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
       </div>
       <div className="absolute -right-32 -top-32 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-500/10 blur-3xl pointer-events-none -z-10" />
       <div className="absolute -left-24 -bottom-24 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-400/10 to-cyan-500/10 blur-3xl pointer-events-none -z-10" />
+      
+      {/* Room Invite Modal */}
+      <RoomInviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        roomId={rid}
+        roomName={room?.name || `Room #${rid}`}
+      />
     </div>
   );
 };
