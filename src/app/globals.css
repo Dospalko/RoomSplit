@@ -224,3 +224,31 @@ body {
     background: rgba(71, 85, 105, 0.7);
   }
 }
+
+/* Enhanced scrolling for dropdowns and mobile */
+.dropdown-scroll {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scroll-behavior: smooth;
+}
+
+/* Ensure proper scrolling on mobile */
+@media (max-width: 768px) {
+  .dropdown-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Better touch scrolling for mobile */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Improve dropdown scrolling */
+.dropdown-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}

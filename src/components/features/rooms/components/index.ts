@@ -9,4 +9,3 @@ export { CategoryTagSelector } from './CategoryTagSelector';
 export { BillCardEnhanced } from './BillCardEnhanced';
 export { CategoryManager } from './CategoryManager';
 export { TagManager } from './TagManager';
-export { RoomSettingsPage } from './RoomSettingsPage';

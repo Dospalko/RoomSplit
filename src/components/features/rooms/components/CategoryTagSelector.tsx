@@ -150,7 +150,7 @@ export const CategoryTagSelector: React.FC<CategoryTagSelectorProps> = ({
           </button>
 
           {categoryDropdownOpen && (
-            <div className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg max-h-60 overflow-y-auto overscroll-contain dropdown-scroll">
               {/* Clear selection option */}
               <button
                 type="button"
@@ -262,7 +262,7 @@ export const CategoryTagSelector: React.FC<CategoryTagSelectorProps> = ({
           </button>
 
           {tagDropdownOpen && (
-            <div className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg max-h-60 overflow-y-auto overscroll-contain dropdown-scroll">
               {/* Create new tag option */}
               <div className="border-b border-neutral-200 dark:border-neutral-700">
                 {isCreatingTag ? (
