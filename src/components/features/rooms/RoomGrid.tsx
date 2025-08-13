@@ -21,7 +21,7 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
         <div className="relative p-10 z-20">
           {/* Ultra-Premium Header */}
           <div className="flex items-start justify-between mb-10">
-            <div className="flex items-center gap-5 min-w-0 flex-1">
+            <div className="flex items-center gap-5 min-w-0 flex-1 pr-4">
               <div className="relative group/avatar">
                 {/* Avatar with Holographic Effect */}
                 <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-black overflow-hidden transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 ${
@@ -67,7 +67,7 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
               </div>
               
               <div className="min-w-0 flex-1">
-                <h3 className="text-2xl font-black tracking-tight mb-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent drop-shadow-sm group-hover:scale-105 transition-transform duration-500">
+                <h3 className="text-2xl font-black tracking-tight mb-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent drop-shadow-sm group-hover:scale-105 transition-transform duration-500 break-words">
                   {room.name}
                 </h3>
                 <div className="flex items-center gap-3">
@@ -87,22 +87,20 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
                 </div>
               </div>
             </div>
-            
-            {/* Ultra-Modern Delete Button */}
-            {isOwner && (
-              <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDeleteRoom(room.id); }}
-                className="relative z-40 group/delete w-14 h-14 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-slate-600 dark:text-slate-300 hover:text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:border-red-400 active:scale-90 transition-all duration-300 flex items-center justify-center hover:scale-110 hover:-rotate-12 shadow-lg hover:shadow-red-500/30"
-                title="Delete room"
-              >
-                <svg className="w-6 h-6 transition-all duration-300 group-hover/delete:scale-110 group-active/delete:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            )}
           </div>
           
-          {/* Premium Status Indicators */}
+          {/* Absolute Positioned Delete Button */}
+          {isOwner && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDeleteRoom(room.id); }}
+              className="absolute top-6 right-6 z-40 group/delete w-12 h-12 rounded-xl backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-slate-600 dark:text-slate-300 hover:text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:border-red-400 active:scale-90 transition-all duration-300 flex items-center justify-center hover:scale-110 hover:-rotate-12 shadow-lg hover:shadow-red-500/30"
+              title="Delete room"
+            >
+              <svg className="w-5 h-5 transition-all duration-300 group-hover/delete:scale-110 group-active/delete:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}          {/* Premium Status Indicators */}
           <div className="space-y-5 mb-10">
             <div className="flex items-center justify-between p-5 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all duration-500">
               <span className="text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide">ROLE</span>
