@@ -13,6 +13,7 @@ model User {
   name      String
   password  String   // In production, this would be hashed
   rooms     Room[]
+  roomMemberships RoomMember[]
   createdAt DateTime @default(now())
 }
 
@@ -24,6 +25,7 @@ model Room {
   members Member[]
   bills   Bill[]
   invites RoomInvite[]
+  roomMembers RoomMember[]
 }
 
 model Member {
@@ -75,4 +77,15 @@ model RoomInvite {
   usedCount  Int      @default(0)
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
+}
+
+model RoomMember {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId  Int
+  room    Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+  
+  @@unique([userId, roomId])
 }

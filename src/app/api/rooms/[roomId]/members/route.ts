@@ -1,49 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { z } from "zod";
+import { getAuthenticatedUser, verifyRoomAccess, verifyRoomOwnership } from "@/server/auth";
 
 type Params = { params: Promise<{ roomId: string }> };
-
-// Helper function to get authenticated user from session
-async function getAuthenticatedUser(request: NextRequest) {
-  const sessionCookie = request.cookies.get('user-session');
-  
-  if (!sessionCookie?.value) {
-    return null;
-  }
-
-  const userId = parseInt(sessionCookie.value);
-  if (isNaN(userId) || userId <= 0) {
-    return null;
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, name: true }
-    });
-    return user;
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return null;
-  }
-}
-
-// Helper function to verify room ownership
-async function verifyRoomOwnership(roomId: number, userId: number) {
-  try {
-    const room = await prisma.room.findFirst({
-      where: {
-        id: roomId,
-        userId: userId
-      }
-    });
-    return !!room;
-  } catch (error) {
-    console.error('Error verifying room ownership:', error);
-    return false;
-  }
-}
 
 export async function GET(request: NextRequest, ctx: Params) {
   try {
@@ -66,11 +26,11 @@ export async function GET(request: NextRequest, ctx: Params) {
       );
     }
 
-    // Verify user owns this room
-    const ownsRoom = await verifyRoomOwnership(roomId, user.id);
-    if (!ownsRoom) {
+    // Verify user has access to this room (for viewing members)
+    const hasAccess = await verifyRoomAccess(roomId, user.id);
+    if (!hasAccess) {
       return NextResponse.json(
-        { error: 'Access denied - room not found or not owned by user' },
+        { error: 'Access denied - room not found or not accessible' },
         { status: 403 }
       );
     }

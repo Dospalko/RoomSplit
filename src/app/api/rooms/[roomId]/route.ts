@@ -1,32 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { getAuthenticatedUser, verifyRoomAccess } from "@/server/auth";
 
 type Params = { params: Promise<{ roomId: string }> };
-
-// Helper function to get authenticated user from session
-async function getAuthenticatedUser(request: NextRequest) {
-  const sessionCookie = request.cookies.get('user-session');
-  
-  if (!sessionCookie?.value) {
-    return null;
-  }
-
-  const userId = parseInt(sessionCookie.value);
-  if (isNaN(userId) || userId <= 0) {
-    return null;
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, name: true }
-    });
-    return user;
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return null;
-  }
-}
 
 export async function GET(request: NextRequest, ctx: Params) {
   try {
@@ -49,15 +25,22 @@ export async function GET(request: NextRequest, ctx: Params) {
       );
     }
 
-    // Get room details, ensuring user owns it
-    const room = await prisma.room.findFirst({
-      where: {
-        id: roomId,
-        userId: user.id
-      },
+    // Verify user has access to this room (owner OR member)
+    const hasAccess = await verifyRoomAccess(roomId, user.id);
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Room not found or access denied' },
+        { status: 404 }
+      );
+    }
+
+    // Get room details
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
       select: {
         id: true,
-        name: true
+        name: true,
+        userId: true
       }
     });
 

@@ -93,17 +93,36 @@ export async function POST(request: NextRequest, ctx: Params) {
       );
     }
 
-    // Check if user is already a member (if we implement room members table later)
-    // For now, we'll allow multiple joins and handle it gracefully
-
-    // Update invite usage count
-    await prisma.roomInvite.update({
-      where: { id: invite.id },
-      data: { usedCount: invite.usedCount + 1 }
+    // Check if user is already a member
+    const existingMember = await prisma.roomMember.findUnique({
+      where: {
+        userId_roomId: {
+          userId: user.id,
+          roomId: invite.room.id
+        }
+      }
     });
 
-    // For now, we'll just return success since we don't have room members table yet
-    // Later we'll add the user to the room members
+    if (existingMember) {
+      return NextResponse.json(
+        { error: 'You are already a member of this room' },
+        { status: 400 }
+      );
+    }
+
+    // Create room membership and update invite usage count in a transaction
+    await prisma.$transaction([
+      prisma.roomMember.create({
+        data: {
+          userId: user.id,
+          roomId: invite.room.id
+        }
+      }),
+      prisma.roomInvite.update({
+        where: { id: invite.id },
+        data: { usedCount: invite.usedCount + 1 }
+      })
+    ]);
     
     return NextResponse.json({
       success: true,
