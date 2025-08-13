@@ -12,72 +12,56 @@ interface RoomCardProps {
 function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
   return (
     <div className="group relative transform perspective-1000">
-      {/* Main Glassmorphic Card */}
-      <div className="relative backdrop-blur-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/20 dark:border-white/10 rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_25px_80px_-15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_35px_120px_-15px_rgba(59,130,246,0.6)] transition-all duration-700 overflow-hidden group-hover:scale-[1.02] group-hover:-translate-y-2">
+      {/* Simplified Glassmorphic Card */}
+      <div className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 to-slate-50/95 dark:from-slate-900/95 dark:to-slate-800/95 border border-white/50 dark:border-slate-700/50 rounded-3xl shadow-[0_20px_70px_rgba(0,0,0,0.1)] hover:shadow-[0_30px_100px_rgba(0,0,0,0.15)] transition-all duration-500 overflow-hidden group-hover:scale-[1.02] group-hover:-translate-y-1">
         
         {/* Interactive Link Area */}
         <Link href={`/rooms/${room.id}`} className="absolute inset-0 z-10" aria-label={`Enter ${room.name} room`}></Link>
         
-        <div className="relative p-10 z-20">
-          {/* Ultra-Premium Header */}
-          <div className="flex items-start justify-between mb-10">
-            <div className="flex items-center gap-5 min-w-0 flex-1 pr-4">
-              <div className="relative group/avatar">
-                {/* Avatar with Holographic Effect */}
-                <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-black overflow-hidden transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 ${
+        <div className="relative p-8 z-20">
+          {/* Clean Header */}
+          <div className="flex items-start justify-between mb-8">
+            <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
+              <div className="relative">
+                {/* Simplified Avatar */}
+                <div className={`relative w-16 h-16 rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg ${
                   isOwner 
-                    ? 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 shadow-[0_20px_40px_rgba(251,146,60,0.4)]' 
-                    : 'bg-gradient-to-br from-blue-500 via-violet-500 to-purple-600 shadow-[0_20px_40px_rgba(99,102,241,0.4)]'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
+                    : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
                 }`}>
-                  
-                  {/* Shimmer Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover/avatar:translate-x-full transition-transform duration-1000"></div>
-                  
-                  {/* Particle Effect Background */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-2 w-1 h-1 bg-white/60 rounded-full animate-ping"></div>
-                    <div className="absolute bottom-3 right-3 w-1 h-1 bg-white/60 rounded-full animate-ping delay-300"></div>
-                    <div className="absolute top-1/2 left-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse delay-700"></div>
-                  </div>
-                  
-                  <span className="relative z-10 font-mono tracking-wider drop-shadow-lg">{room.name.slice(0,2).toUpperCase()}</span>
+                  <span className="font-mono tracking-wider">{room.name.slice(0,2).toUpperCase()}</span>
                 </div>
                 
-                {/* Floating Role Badge */}
-                <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 ${
+                {/* Simple Role Badge */}
+                <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-lg ${
                   isOwner
-                    ? 'bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 shadow-amber-400/50'
-                    : 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 shadow-emerald-400/50'
+                    ? 'bg-gradient-to-br from-amber-400 to-amber-500'
+                    : 'bg-gradient-to-br from-slate-400 to-slate-500'
                 }`}>
                   {isOwner ? (
-                    <svg className="w-4 h-4 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </div>
-
-                {/* Pulsing Ring */}
-                <div className={`absolute inset-0 rounded-2xl border-2 border-opacity-0 group-hover:border-opacity-100 transition-all duration-700 ${
-                  isOwner ? 'border-amber-400' : 'border-blue-400'
-                } group-hover:scale-110 group-hover:animate-pulse`}></div>
               </div>
               
               <div className="min-w-0 flex-1">
-                <h3 className="text-2xl font-black tracking-tight mb-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent drop-shadow-sm group-hover:scale-105 transition-transform duration-500 break-words">
+                <h3 className="text-xl font-bold tracking-tight mb-2 text-slate-900 dark:text-slate-100 break-words">
                   {room.name}
                 </h3>
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${
                     isOwner 
-                      ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
-                      : 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                   }`}>
-                    <div className={`w-2 h-2 rounded-full ${isOwner ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse`}></div>
-                    {isOwner ? 'OWNER' : 'MEMBER'}
+                    <div className={`w-2 h-2 rounded-full ${isOwner ? 'bg-blue-500' : 'bg-emerald-500'}`}></div>
+                    {isOwner ? 'Owner' : 'Member'}
                   </div>
                   {!isOwner && room.type === 'member' && (
                     <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
