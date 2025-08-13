@@ -148,9 +148,29 @@ export const NewBillCard: React.FC<NewBillCardProps> = ({ members, onAddBill }) 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-lg py-2.5 text-sm font-medium bg-gradient-to-br from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 text-white dark:text-neutral-900 shadow hover:shadow-md active:scale-[.985] disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="group relative w-full py-3 text-sm font-bold text-white overflow-hidden rounded-xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white dark:text-slate-900 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 dark:hover:from-slate-50 dark:hover:via-white dark:hover:to-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-slate-900/25 dark:hover:shadow-white/25 active:scale-[0.98]"
             >
-              {isSubmitting ? 'Creating...' : `Create (${rule.toLowerCase()}) split`}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <div className="relative flex items-center justify-center gap-2">
+                {isSubmitting ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    <span>Create ({rule.toLowerCase()}) split</span>
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </div>
             </button>
           </div>
         </form>

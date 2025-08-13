@@ -74,10 +74,15 @@ export const BillsList: React.FC<BillsListProps> = ({
                     <div className="flex items-start gap-2">
                       <button 
                         onClick={() => onDeleteBill(b.id)} 
-                        className="text-xs text-neutral-400 hover:text-red-600 transition" 
+                        className="group/delete relative px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95" 
                         title="Delete bill"
                       >
-                        Delete
+                        <div className="flex items-center gap-1">
+                          <svg className="w-3 h-3 group-hover/delete:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Delete</span>
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -107,9 +112,14 @@ export const BillsList: React.FC<BillsListProps> = ({
                           ) : (
                             <button 
                               onClick={() => onMarkPaid(s.id, true)} 
-                              className="rounded-md border border-neutral-300 dark:border-neutral-700 px-2 py-1 text-[10px] font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                              className="group/pay relative px-3 py-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border border-emerald-200 dark:border-emerald-800 rounded-md hover:from-emerald-100 hover:to-green-100 dark:hover:from-emerald-900/50 dark:hover:to-green-900/50 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
                             >
-                              mark paid
+                              <div className="flex items-center gap-1">
+                                <svg className="w-3 h-3 group-hover/pay:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>MARK PAID</span>
+                              </div>
                             </button>
                           )}
                         </li>

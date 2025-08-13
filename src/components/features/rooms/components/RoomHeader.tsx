@@ -46,9 +46,15 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
           <div className="mt-3 flex flex-wrap gap-2">
             <button 
               onClick={onDeleteRoom} 
-              className="text-xs rounded-md border border-red-300/50 dark:border-red-700/40 text-red-600 dark:text-red-400 px-3 py-1 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition"
+              className="group relative px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-200/60 dark:border-red-700/40 rounded-xl hover:from-red-100 hover:to-rose-100 dark:hover:from-red-900/30 dark:hover:to-rose-900/30 hover:border-red-300/80 dark:hover:border-red-600/60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-red-500/25 active:scale-95 overflow-hidden"
             >
-              Delete room
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex items-center gap-2">
+                <svg className="w-3 h-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Delete room</span>
+              </div>
             </button>
           </div>
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">

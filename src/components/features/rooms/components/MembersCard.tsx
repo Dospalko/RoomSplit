@@ -65,9 +65,26 @@ export const MembersCard: React.FC<MembersCardProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || !!validationError}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="group relative px-6 py-2 text-sm font-semibold text-white overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-500 hover:via-blue-600 hover:to-indigo-600 disabled:from-neutral-400 disabled:via-neutral-500 disabled:to-neutral-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95"
           >
-            {isSubmitting ? 'Adding...' : 'Add'}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative flex items-center gap-2">
+              {isSubmitting ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Adding...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Add</span>
+                </>
+              )}
+            </div>
           </button>
         </form>
         <ul className="mt-5 grid sm:grid-cols-1 gap-2 max-h-72 overflow-auto pr-1">
@@ -98,10 +115,12 @@ export const MembersCard: React.FC<MembersCardProps> = ({
                   </span>
                   <button 
                     onClick={() => onDeleteMember(m.id)} 
-                    className="opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-600 transition text-xs px-1" 
+                    className="group/delete relative opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-400 hover:to-rose-500 transition-all duration-300 transform hover:scale-110 hover:shadow-lg hover:shadow-red-500/30 active:scale-95 flex items-center justify-center" 
                     title="Delete member"
                   >
-                    ✕
+                    <svg className="w-3 h-3 group-hover/delete:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
               </li>
