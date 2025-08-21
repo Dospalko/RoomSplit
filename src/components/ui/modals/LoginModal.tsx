@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiMail, FiLock, FiArrowRight, FiX, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FaGoogle } from 'react-icons/fa';
+import zxcvbn from 'zxcvbn';
 
 interface LoginModalProps {
   onClose: () => void;
@@ -31,6 +33,40 @@ const AnimatedInput = ({ icon, ...props }: AnimatedInputProps) => (
   </motion.div>
 );
 
+const PasswordStrength = ({ score, feedback }: { score: number; feedback: string }) => {
+  const strengthLevels = [
+    { width: '0%', color: 'bg-slate-700', label: '' },
+    { width: '25%', color: 'bg-red-500', label: 'Weak' },
+    { width: '50%', color: 'bg-yellow-500', label: 'Fair' },
+    { width: '75%', color: 'bg-blue-500', label: 'Good' },
+    { width: '100%', color: 'bg-green-500', label: 'Strong' },
+  ];
+
+  return (
+    <AnimatePresence>
+      <motion.div 
+        className="mt-2 space-y-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+          <motion.div
+            className={`h-2 rounded-full ${strengthLevels[score].color}`}
+            initial={{ width: 0 }}
+            animate={{ width: strengthLevels[score].width }}
+            transition={{ duration: 0.3 }}
+          ></motion.div>
+        </div>
+        <div className="flex justify-between text-xs text-slate-400">
+          <span>{strengthLevels[score].label}</span>
+          <span>{feedback}</span>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -41,6 +77,22 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const passwordStrength = useMemo(() => {
+    if (formData.password.length === 0) {
+      return { score: 0, feedback: '' };
+    }
+    const result = zxcvbn(formData.password);
+    const feedback = result.feedback.suggestions.length > 0 ? result.feedback.suggestions[0] : '';
+    return { score: result.score, feedback };
+  }, [formData.password]);
+
+  const handleGoogleSignIn = () => {
+    // Placeholder for Google Sign-In logic
+    console.log("Signing in with Google...");
+    // This would typically redirect to a Google OAuth consent screen
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -241,6 +293,9 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
                     </AnimatePresence>
                   </motion.button>
                 </div>
+                {!isLogin && formData.password.length > 0 && (
+                  <PasswordStrength score={passwordStrength.score} feedback={passwordStrength.feedback} />
+                )}
 
                 <motion.button
                   type="submit"
@@ -289,6 +344,26 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </motion.button>
+
+                <div className="relative flex items-center justify-center my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-slate-900 text-slate-500">OR</span>
+                  </div>
+                </div>
+
+                <motion.button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  className="w-full px-6 py-4 bg-slate-800 text-white font-semibold rounded-xl hover:bg-slate-700 transition-all duration-300 flex items-center justify-center gap-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FaGoogle />
+                  <span>Sign In with Google</span>
                 </motion.button>
 
                 <div className="mt-6 text-center">
