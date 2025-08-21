@@ -95,14 +95,14 @@ export default function Header() {
 
           {/* Navigation with Morphing Indicators */}
           <nav className="hidden lg:flex items-center">
-            <div className="relative flex items-center gap-1 bg-white/10 dark:bg-black/20 backdrop-blur-xl rounded-full p-1 border border-white/20 dark:border-white/10">
-              {['Features', 'How it works','Rooms'].map((item) => (
+            <div className="relative capitalize flex items-center gap-1 bg-white/10 dark:bg-black/20 backdrop-blur-xl rounded-full p-1 border border-white/20 dark:border-white/10">
+              {['FEATURES', 'HOW IT WORKS','ROOMS'].map((item) => (
                 <button
                   key={item}
                   onClick={() => smoothScrollTo(item.toLowerCase().replace(/\s+/g, '-'))}
-                  onMouseEnter={() => setActiveNavItem(item)}
+                  onMouseEnter={() => setActiveNavItem(item)} 
                   onMouseLeave={() => setActiveNavItem('')}
-                  className={`relative px-6 py-2 text-sm font-medium font-roboto-mono rounded-full transition-all duration-300 ${
+                  className={`relative capitalize px-6 py-2 text-sm font-medium font-roboto-mono rounded-full transition-all duration-300 ${
                     activeNavItem === item
                       ? 'text-white dark:text-black'
                       : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100'
