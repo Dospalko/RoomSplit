@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, MouseEvent } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, Variants } from "framer-motion";
-import { FiX, FiHome } from "react-icons/fi";
+import { useState } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
+import { FiX, FiHome, FiUsers, FiMap, FiBriefcase, FiCoffee, FiHeart } from "react-icons/fi";
 import { ButtonLoader } from "@/components";
 
 interface RoomCreateModalProps {
@@ -12,66 +12,49 @@ interface RoomCreateModalProps {
 }
 
 const modalVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.9, y: 50 },
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
   visible: { 
     opacity: 1, 
-    scale: 1, 
     y: 0,
+    scale: 1,
     transition: { 
-      type: "spring", 
-      stiffness: 400, 
-      damping: 40,
+      duration: 0.4,
+      ease: [0.23, 1, 0.32, 1],
       when: "beforeChildren",
-      staggerChildren: 0.1
+      staggerChildren: 0.08
     } 
   },
   exit: { 
     opacity: 0, 
-    scale: 0.9, 
-    y: 50,
-    transition: { duration: 0.3, ease: "easeIn" }
+    y: 20,
+    scale: 0.95,
+    transition: { duration: 0.3, ease: [0.76, 0, 0.24, 1] }
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 20 } },
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] } },
 };
+
+const suggestions = [
+  { name: "Home & Bills", icon: FiHome, color: "bg-blue-500/10 border-blue-500/20 text-blue-400" },
+  { name: "Trip", icon: FiMap, color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" },
+  { name: "Work Team", icon: FiBriefcase, color: "bg-purple-500/10 border-purple-500/20 text-purple-400" },
+  { name: "Friends", icon: FiUsers, color: "bg-orange-500/10 border-orange-500/20 text-orange-400" },
+  { name: "Date Night", icon: FiHeart, color: "bg-pink-500/10 border-pink-500/20 text-pink-400" },
+  { name: "Coffee Run", icon: FiCoffee, color: "bg-amber-500/10 border-amber-500/20 text-amber-400" },
+];
 
 export default function RoomCreateModal({ onCreateRoom, onClose, creating }: RoomCreateModalProps) {
   const [roomName, setRoomName] = useState("");
   const [error, setError] = useState(false);
 
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 50 });
-  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 50 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12.5deg", "-12.5deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12.5deg", "12.5deg"]);
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!modalRef.current) return;
-    const { left, top, width, height } = modalRef.current.getBoundingClientRect();
-    const xPos = (e.clientX - left) / width - 0.5;
-    const yPos = (e.clientY - top) / height - 0.5;
-    x.set(xPos);
-    y.set(yPos);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) {
       setError(true);
-      setTimeout(() => setError(false), 1000);
+      setTimeout(() => setError(false), 800);
       return;
     }
     onCreateRoom(roomName.trim());
@@ -79,7 +62,13 @@ export default function RoomCreateModal({ onCreateRoom, onClose, creating }: Roo
 
   const handleClose = () => {
     setRoomName("");
+    setError(false);
     onClose();
+  };
+
+  const handleSuggestionClick = (name: string) => {
+    setRoomName(name);
+    setError(false);
   };
 
   return (
@@ -88,96 +77,113 @@ export default function RoomCreateModal({ onCreateRoom, onClose, creating }: Roo
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50"
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50"
         onClick={handleClose}
       >
         <motion.div
-          ref={modalRef}
           variants={modalVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
           onClick={(e) => e.stopPropagation()}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="bg-slate-900/70 border border-blue-500/20 rounded-3xl shadow-2xl shadow-blue-900/50 w-full max-w-md relative overflow-hidden"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg relative overflow-hidden"
         >
-          <div
-            className="absolute inset-0 bg-[url(/noise.png)] opacity-20"
-            style={{ transform: "translateZ(-50px)" }}
-          />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-slate-900"
-            style={{ transform: "translateZ(-30px)" }}
-          />
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/30 dark:to-transparent pointer-events-none" />
           
+          {/* Close button */}
           <motion.button 
             onClick={handleClose} 
-            className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors z-10"
-            whileHover={{ scale: 1.2, rotate: 90 }}
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors z-10"
+            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <FiX className="w-7 h-7" />
+            <FiX className="w-6 h-6" />
           </motion.button>
 
-          <div className="p-8 relative" style={{ transform: "translateZ(50px)" }}>
-            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
-              <motion.div 
-                className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20 shadow-inner-lg"
-                whileHover={{ scale: 1.1, y: -2 }}
-              >
-                <FiHome className="w-8 h-8 text-blue-300" />
-              </motion.div>
-              <h3 className="text-3xl font-bold text-white tracking-tight">Create a New Room</h3>
+          <div className="p-8 sm:p-10 relative">
+            {/* Header */}
+            <motion.div variants={itemVariants} className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl border border-blue-200 dark:border-blue-800/50 mb-4">
+                <FiHome className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                Create Your Room
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+                Start tracking shared expenses with friends, family, or colleagues in your own dedicated space.
+              </p>
             </motion.div>
-            
-            <form onSubmit={handleSubmit} className="space-y-8">
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Room name input */}
               <motion.div variants={itemVariants}>
-                <label htmlFor="roomName" className="block text-md font-medium text-slate-400 mb-3">
-                  What should we call your room?
+                <label htmlFor="roomName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  Room Name
                 </label>
                 <motion.div 
                   className="relative"
-                  animate={{ x: error ? [0, -10, 10, -5, 5, 0] : 0 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  animate={{ x: error ? [0, -4, 4, -2, 2, 0] : 0 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
                   <input
                     id="roomName"
                     type="text"
                     value={roomName}
                     onChange={(e) => setRoomName(e.target.value)}
-                    placeholder="e.g., 'Weekend Getaway' or 'Apartment Bills'"
-                    className={`w-full pl-4 pr-4 py-4 rounded-xl border bg-slate-800/60 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${error ? 'border-red-500/50 ring-red-500/50' : 'border-slate-700/50 focus:border-blue-500'}`}
+                    placeholder="e.g., 'Weekend in Paris'"
+                    className={`w-full px-4 py-3.5 rounded-xl border bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      error 
+                        ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20' 
+                        : 'border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20'
+                    }`}
                     autoFocus
                   />
                 </motion.div>
               </motion.div>
-              
-              <motion.div variants={itemVariants} className="flex gap-4 pt-4">
-                <motion.button
+
+              {/* Quick suggestions */}
+              <motion.div variants={itemVariants}>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  Quick Start
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {suggestions.map((suggestion) => {
+                    const IconComponent = suggestion.icon;
+                    return (
+                      <motion.button
+                        key={suggestion.name}
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion.name)}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium transition-all duration-200 hover:scale-105 ${suggestion.color} hover:bg-opacity-80`}
+                        whileHover={{ y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{suggestion.name}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Action buttons */}
+              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 pt-4">
+                <button
                   type="button"
                   onClick={handleClose}
-                  whileHover={{ scale: 1.05, y: -2, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-700 text-slate-300 font-semibold hover:bg-slate-800 hover:border-slate-600 transition-all duration-300"
+                  className="w-full sm:w-auto flex-1 px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200"
                 >
                   Cancel
-                </motion.button>
-                <motion.div
-                  className="flex-1"
-                  whileHover={{ scale: 1.05, y: -2, boxShadow: "0 8px 30px rgba(59, 130, 246, 0.5)" }}
-                  whileTap={{ scale: 0.95 }}
+                </button>
+                <ButtonLoader
+                  loading={creating}
+                  type="submit"
+                  disabled={!roomName.trim()}
+                  className="w-full sm:w-auto flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-lg shadow-blue-500/25"
                 >
-                  <ButtonLoader
-                    loading={creating}
-                    type="submit"
-                    disabled={!roomName.trim()}
-                    className="w-full px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
-                  >
-                    Create Room
-                  </ButtonLoader>
-                </motion.div>
+                  Create Room
+                </ButtonLoader>
               </motion.div>
             </form>
           </div>
