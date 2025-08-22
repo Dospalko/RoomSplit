@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-
-type Room = { id: number; name: string };
+import type { Room } from '@/types';
 
 export default function SimpleHeader() {
   const { roomId } = useParams<{ roomId: string }>();

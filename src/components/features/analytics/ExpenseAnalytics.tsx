@@ -2,10 +2,8 @@
 
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from 'recharts';
-
-type Member = { id: number; name: string };
-type Share = { id: number; memberId: number; amountCents: number; paid: boolean; member?: { id: number; name: string } };
-type Bill = { id: number; title: string; amountCents: number; period: string; shares: Share[] };
+import { fmt } from '@/types';
+import type { Member, Bill } from '@/types';
 
 interface ExpenseAnalyticsProps {
   members: Member[];
@@ -25,8 +23,6 @@ interface CategoryData {
   value: number;
   count: number;
 }
-
-const fmt = (cents: number) => (cents / 100).toFixed(2) + " €";
 
 export default function ExpenseAnalytics({ members, bills }: ExpenseAnalyticsProps) {
   // Calculate analytics data

@@ -10,10 +10,7 @@ import {
   SkeletonLoader
 } from "@/components";
 import { RoomCreateModal, LoginModal } from "@/components/ui/modals";
-
-type OwnedRoom = { id: number; name: string; type: 'owned' };
-type MemberRoom = { id: number; name: string; type: 'member'; ownerName: string };
-type User = { id: number; email: string; name: string };
+import type { OwnedRoom, MemberRoom, User } from "@/types";
 
 export default function Home() {
   const [ownedRooms, setOwnedRooms] = useState<OwnedRoom[]>([]);

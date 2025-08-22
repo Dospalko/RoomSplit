@@ -1,17 +1,24 @@
 import Link from "next/link";
-
-type OwnedRoom = { id: number; name: string; type: 'owned' };
-type MemberRoom = { id: number; name: string; type: 'member'; ownerName: string };
+import { motion } from "framer-motion";
+import type { OwnedRoom, MemberRoom, RoomType } from "@/types";
 
 interface RoomCardProps {
-  room: OwnedRoom | MemberRoom;
+  room: RoomType;
   onDeleteRoom: (id: number) => void;
   isOwner: boolean;
 }
 
 function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50, scale: 0.9 },
+    visible: { opacity: 1, y: 0, scale: 1 }
+  };
+
   return (
-    <div className="group relative transform perspective-1000">
+    <motion.div
+      variants={cardVariants}
+      className="group relative transform perspective-1000"
+    >
       {/* Simplified Glassmorphic Card */}
       <div className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 to-slate-50/95 dark:from-slate-900/95 dark:to-slate-800/95 border border-white/50 dark:border-slate-700/50 rounded-3xl shadow-[0_20px_70px_rgba(0,0,0,0.1)] hover:shadow-[0_30px_100px_rgba(0,0,0,0.15)] transition-all duration-500 overflow-hidden group-hover:scale-[1.02] group-hover:-translate-y-1">
         
@@ -126,7 +133,7 @@ function RoomCard({ room, onDeleteRoom, isOwner }: RoomCardProps) {
 
         {/* Remove floating particles */}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -335,11 +342,18 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16">
+              <motion.div 
+                className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.1 } }
+                }}
+              >
                 {ownedRooms.map((r) => (
                   <RoomCard key={r.id} room={r} onDeleteRoom={onDeleteRoom} isOwner={true} />
                 ))}
-              </div>
+              </motion.div>
             </div>
           )}
 
@@ -390,11 +404,18 @@ export default function RoomGrid({ ownedRooms, memberRooms, onDeleteRoom, onCrea
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16">
+              <motion.div 
+                className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-12 lg:gap-16"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.1 } }
+                }}
+              >
                 {memberRooms.map((r) => (
                   <RoomCard key={r.id} room={r} onDeleteRoom={onDeleteRoom} isOwner={false} />
                 ))}
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
