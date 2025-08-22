@@ -135,61 +135,16 @@ export default function RoomDetail() {
         <div className="space-y-8">
           {/* Header */}
           {room && (
-            <>
-              <RoomHeader
-                room={room}
-                rid={rid}
-                summary={summary}
-                memberCount={members.length}
-                billCount={bills.length}
-                totals={billTotals}
-                onDeleteRoom={deleteRoom}
-                onViewAnalytics={() => setActiveTab('analytics')}
-              />
-              
-              {/* Demo Notification Buttons */}
-              <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
-                  🎉 New Notification System Demo
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => addNotification('success', 'Payment Successful!', 'Your payment of €24.50 has been processed successfully.')}
-                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Success Toast
-                  </button>
-                  <button
-                    onClick={() => addNotification('error', 'Payment Failed', 'Unable to process payment. Please check your card details and try again.')}
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Error Toast
-                  </button>
-                  <button
-                    onClick={() => addNotification('warning', 'Low Balance Warning', 'Your account balance is running low. Consider adding funds soon.')}
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Warning Toast
-                  </button>
-                  <button
-                    onClick={() => addNotification('info', 'New Feature Available', 'Check out the new expense analytics dashboard in the Analytics tab!')}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Info Toast
-                  </button>
-                  <button
-                    onClick={() => {
-                      addNotification('success', 'Room Created', 'Welcome to your new expense sharing room!');
-                      setTimeout(() => addNotification('info', 'Getting Started', 'Add some members to start splitting expenses.'), 1000);
-                      setTimeout(() => addNotification('warning', 'Remember', 'Set up categories for better expense organization.'), 2000);
-                    }}
-                    className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Multiple Toasts
-                  </button>
-                </div>
-              </div>
-            </>
+            <RoomHeader
+              room={room}
+              rid={rid}
+              summary={summary}
+              memberCount={members.length}
+              billCount={bills.length}
+              totals={billTotals}
+              onDeleteRoom={deleteRoom}
+              onViewAnalytics={() => setActiveTab('analytics')}
+            />
           )}
 
           {/* Tab Navigation */}

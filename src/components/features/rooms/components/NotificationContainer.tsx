@@ -54,18 +54,26 @@ const ToastItem: React.FC<{
   useEffect(() => {
     const duration = notification.duration || 5000; // Default 5 seconds
     if (duration > 0) {
+      // Use setTimeout for auto-removal instead of calling onRemove in setInterval
+      const autoRemoveTimeout = setTimeout(() => {
+        onRemove(notification.id);
+      }, duration);
+
+      // Progress bar animation
       const interval = setInterval(() => {
         setProgress((prev) => {
           const newProgress = prev - (100 / (duration / 100));
           if (newProgress <= 0) {
-            onRemove(notification.id);
             return 0;
           }
           return newProgress;
         });
       }, 100);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(autoRemoveTimeout);
+        clearInterval(interval);
+      };
     }
   }, [notification.duration, notification.id, onRemove]);
 
