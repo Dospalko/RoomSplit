@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiMail, FiLock, FiArrowRight, FiX, FiEye, FiEyeOff } from 'react-icons/fi';
-import { FaGoogle } from 'react-icons/fa';
+import { FiUser, FiMail, FiLock, FiArrowRight, FiX, FiEye, FiEyeOff, FaGoogle } from '@/lib/icons';
 import zxcvbn from 'zxcvbn';
 
 interface LoginModalProps {

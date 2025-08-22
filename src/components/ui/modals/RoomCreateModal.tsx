@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { FiX, FiHome, FiUsers, FiMap, FiBriefcase, FiCoffee, FiHeart } from "react-icons/fi";
+import { FiX, FiHome, FiUsers, FiMap, FiBriefcase, FiCoffee, FiHeart } from "@/lib/icons";
 import { ButtonLoader } from "@/components";
 
 interface RoomCreateModalProps {

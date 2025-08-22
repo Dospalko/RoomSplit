@@ -36,7 +36,10 @@ export default function RoomDetail() {
   } = useRoomData({ 
     rid, 
     period: currentPeriod, 
-    addNotification: () => {} // Empty function since we're not using notifications here
+    addNotification: (type, title, message) => {
+      // Simple console logging for room pages since we only want notifications on main page
+      console.log(`${type.toUpperCase()}: ${title} - ${message}`);
+    }
   });
 
   // Loading state

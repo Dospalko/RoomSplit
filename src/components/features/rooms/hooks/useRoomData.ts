@@ -17,6 +17,7 @@ interface UseRoomDataProps {
 export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) => {
   const router = useRouter();
   const welcomeShownRef = useRef(false);
+  const hasInitiallyLoadedRef = useRef(false); // Use ref instead of state to avoid dependency issues
 
   // Auth state
   const [user, setUser] = useState<User | null>(null);
@@ -29,7 +30,6 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
   const [bills, setBills] = useState<Bill[]>([]);
   const [summary, setSummary] = useState<RoomSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
 
   // Authentication check
   useEffect(() => {
@@ -60,7 +60,7 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
     if (!Number.isFinite(rid) || authLoading) return;
     
     // Only show loading spinner on initial load, not on subsequent refreshes
-    if (!hasInitiallyLoaded) {
+    if (!hasInitiallyLoadedRef.current) {
       setLoading(true);
     }
     
@@ -128,7 +128,7 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
       setBills(b);
       setSummary(s && !s.error ? s : null);
       setLoading(false);
-      setHasInitiallyLoaded(true);
+      hasInitiallyLoadedRef.current = true;
       
       // Welcome notification only on first load
       if (roomData?.name && !welcomeShownRef.current) {
@@ -141,9 +141,9 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
         addNotification('error', 'Failed to Load Data', error.message);
       }
       setLoading(false);
-      setHasInitiallyLoaded(true);
+      hasInitiallyLoadedRef.current = true;
     }
-  }, [rid, period, authLoading, router, addNotification, hasInitiallyLoaded]);
+  }, [rid, period, authLoading, router, addNotification]); // Now no dependency issues
 
   useEffect(() => { 
     if (!authLoading && user) {

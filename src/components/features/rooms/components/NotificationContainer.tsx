@@ -1,6 +1,6 @@
   import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiAlertTriangle, FiInfo, FiCheckCircle } from 'react-icons/fi';
+import { FiX, FiAlertTriangle, FiInfo, FiCheckCircle } from '@/lib/icons';
 import { Notification } from '../types';
 
 interface NotificationContainerProps {
