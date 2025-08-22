@@ -253,6 +253,14 @@ export default function Home() {
                     </svg>
                     Sign In to Continue
                   </button>
+                  
+                  {/* Test notification button */}
+                  <button
+                    onClick={() => addNotification('success', 'Test Notification', 'This is a test of the new beautiful notification system!')}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    Test Notifications
+                  </button>
                 </div>
 
                 {/* Feature Preview Cards */}
