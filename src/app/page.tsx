@@ -10,6 +10,8 @@ import {
   SkeletonLoader
 } from "@/components";
 import { RoomCreateModal, LoginModal } from "@/components/ui/modals";
+import { useNotifications } from "@/components/features/rooms/hooks/useNotifications";
+import { NotificationContainer } from "@/components/features/rooms/components/NotificationContainer";
 import type { OwnedRoom, MemberRoom, User } from "@/types";
 
 export default function Home() {
@@ -21,6 +23,9 @@ export default function Home() {
   const [roomsLoading, setRoomsLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+
+  // Add notification system
+  const { notifications, addNotification, removeNotification } = useNotifications();
 
   useEffect(() => {
     // Check for existing session
@@ -82,19 +87,72 @@ export default function Home() {
         await fetchRooms();
         setShowCreateModal(false);
         setCreating(false);
+        
+        // Show success notification
+        addNotification(
+          'success', 
+          'Room Created Successfully!', 
+          `"${roomName.trim()}" is ready for expense sharing.`
+        );
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.error || 'Failed to create room';
+        setCreating(false);
+        
+        // Show error notification
+        addNotification(
+          'error', 
+          'Room Creation Failed', 
+          errorMessage
+        );
       }
     } catch (error) {
       console.error("Error creating room:", error);
       setCreating(false);
+      
+      // Show error notification
+      addNotification(
+        'error', 
+        'Network Error', 
+        'Unable to create room. Please check your connection and try again.'
+      );
     }
   };
 
   const deleteRoom = async (id: number) => {
     if (!confirm("Are you sure you want to delete this room? This will delete all associated data.")) return;
     
-    const res = await fetch(`/api/rooms?id=${id}`, { method: "DELETE" });
-    if (res.ok) {
-      await fetchRooms();
+    try {
+      const res = await fetch(`/api/rooms?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        await fetchRooms();
+        
+        // Show success notification
+        addNotification(
+          'success', 
+          'Room Deleted', 
+          'The room and all its data have been permanently deleted.'
+        );
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.error || 'Failed to delete room';
+        
+        // Show error notification
+        addNotification(
+          'error', 
+          'Delete Failed', 
+          errorMessage
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      
+      // Show error notification
+      addNotification(
+        'error', 
+        'Network Error', 
+        'Unable to delete room. Please check your connection and try again.'
+      );
     }
   };
 
@@ -113,6 +171,13 @@ export default function Home() {
   const handleLogin = (userData: User) => {
     setUser(userData);
     setShowLoginModal(false);
+    
+    // Show welcome notification
+    addNotification(
+      'success', 
+      `Welcome back, ${userData.name}!`, 
+      'You are now signed in and can manage your expense rooms.'
+    );
   };
 
   const handleLogout = async () => {
@@ -132,6 +197,12 @@ export default function Home() {
 
   return (
     <>
+      {/* Notification Container */}
+      <NotificationContainer 
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
+      
       {/* Remove PageLoader completely for instant loading */}
       <div 
         className="min-h-screen relative" 

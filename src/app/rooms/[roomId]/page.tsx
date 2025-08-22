@@ -5,8 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { ExpenseAnalytics } from "@/components";
 
 import { useRoomData } from "@/components/features/rooms/hooks/useRoomData";
-import { useNotifications } from "@/components/features/rooms/hooks/useNotifications";
-import { NotificationContainer } from "@/components/features/rooms/components/NotificationContainer";
 import { RoomHeader } from "@/components/features/rooms/components/RoomHeader";
 import { MembersCard } from "@/components/features/rooms/components/MembersCard";
 import { NewBillCard } from "@/components/features/rooms/components/NewBillCard";
@@ -22,8 +20,6 @@ export default function RoomDetail() {
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'settings'>('overview');
   const currentPeriod = new Date().toISOString().slice(0, 7);
 
-  const { notifications, addNotification, removeNotification } = useNotifications();
-
   const {
     authLoading,
     accessDenied,
@@ -37,7 +33,11 @@ export default function RoomDetail() {
     deleteMember,
     deleteBill,
     deleteRoom
-  } = useRoomData({ rid, period: currentPeriod, addNotification });
+  } = useRoomData({ 
+    rid, 
+    period: currentPeriod, 
+    addNotification: () => {} // Empty function since we're not using notifications here
+  });
 
   // Loading state
   if (authLoading) {
@@ -106,11 +106,6 @@ export default function RoomDetail() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <NotificationContainer 
-        notifications={notifications}
-        onRemove={removeNotification}
-      />
-      
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
