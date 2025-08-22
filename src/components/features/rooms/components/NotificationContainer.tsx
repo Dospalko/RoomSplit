@@ -1,4 +1,6 @@
-import React from 'react';
+  import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiX, FiAlertTriangle, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import { Notification } from '../types';
 
 interface NotificationContainerProps {
@@ -6,88 +8,192 @@ interface NotificationContainerProps {
   onRemove: (id: string) => void;
 }
 
-export const NotificationContainer: React.FC<NotificationContainerProps> = ({ notifications, onRemove }) => {
+const iconMap = {
+  success: FiCheckCircle,
+  error: FiX,
+  warning: FiAlertTriangle,
+  info: FiInfo,
+};
+
+const colorMap = {
+  success: {
+    bg: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+    text: 'text-white',
+    icon: 'text-white',
+    progress: 'bg-emerald-300'
+  },
+  error: {
+    bg: 'bg-gradient-to-r from-red-500 to-red-600',
+    text: 'text-white',
+    icon: 'text-white',
+    progress: 'bg-red-300'
+  },
+  warning: {
+    bg: 'bg-gradient-to-r from-amber-500 to-amber-600',
+    text: 'text-white',
+    icon: 'text-white',
+    progress: 'bg-amber-300'
+  },
+  info: {
+    bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+    text: 'text-white',
+    icon: 'text-white',
+    progress: 'bg-blue-300'
+  },
+};
+
+const ToastItem: React.FC<{
+  notification: Notification;
+  onRemove: (id: string) => void;
+  index: number;
+}> = ({ notification, onRemove, index }) => {
+  const [progress, setProgress] = useState(100);
+  const IconComponent = iconMap[notification.type];
+  const colors = colorMap[notification.type];
+
+  useEffect(() => {
+    const duration = notification.duration || 5000; // Default 5 seconds
+    if (duration > 0) {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          const newProgress = prev - (100 / (duration / 100));
+          if (newProgress <= 0) {
+            onRemove(notification.id);
+            return 0;
+          }
+          return newProgress;
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [notification.duration, notification.id, onRemove]);
+
   return (
-    <div className="fixed top-20 right-4 z-50 space-y-3 max-w-sm">
-      {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className={`transform transition-all duration-300 ease-in-out animate-in slide-in-from-right-full rounded-lg border backdrop-blur-sm shadow-lg p-4 ${
-            notification.type === 'success' 
-              ? 'bg-emerald-50/90 dark:bg-emerald-900/60 border-emerald-200 dark:border-emerald-700' 
-              : notification.type === 'error'
-              ? 'bg-red-50/90 dark:bg-red-900/60 border-red-200 dark:border-red-700'
-              : notification.type === 'warning'
-              ? 'bg-amber-50/90 dark:bg-amber-900/60 border-amber-200 dark:border-amber-700'
-              : 'bg-blue-50/90 dark:bg-blue-900/60 border-blue-200 dark:border-blue-700'
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              {notification.type === 'success' && (
-                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-              {notification.type === 'error' && (
-                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              )}
-              {notification.type === 'warning' && (
-                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              )}
-              {notification.type === 'info' && (
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className={`text-sm font-semibold ${
-                notification.type === 'success' 
-                  ? 'text-emerald-800 dark:text-emerald-200' 
-                  : notification.type === 'error'
-                  ? 'text-red-800 dark:text-red-200'
-                  : notification.type === 'warning'
-                  ? 'text-amber-800 dark:text-amber-200'
-                  : 'text-blue-800 dark:text-blue-200'
-              }`}>
-                {notification.title}
-              </h4>
-              <p className={`text-xs mt-1 ${
-                notification.type === 'success' 
-                  ? 'text-emerald-700 dark:text-emerald-300' 
-                  : notification.type === 'error'
-                  ? 'text-red-700 dark:text-red-300'
-                  : notification.type === 'warning'
-                  ? 'text-amber-700 dark:text-amber-300'
-                  : 'text-blue-700 dark:text-blue-300'
-              }`}>
-                {notification.message}
-              </p>
-            </div>
-            <button
-              onClick={() => onRemove(notification.id)}
-              className={`flex-shrink-0 p-1 rounded-md transition-colors ${
-                notification.type === 'success' 
-                  ? 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-800' 
-                  : notification.type === 'error'
-                  ? 'text-red-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-800'
-                  : notification.type === 'warning'
-                  ? 'text-amber-400 hover:text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-800'
-                  : 'text-blue-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-800'
-              }`}
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: 300, scale: 0.9 }}
+      animate={{ 
+        opacity: 1, 
+        x: 0, 
+        scale: 1,
+        y: index * -8, // Subtle stacking effect
+      }}
+      exit={{ 
+        opacity: 0, 
+        x: 300, 
+        scale: 0.9,
+        transition: { duration: 0.2 }
+      }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 30,
+        delay: index * 0.05
+      }}
+      className={`
+        relative overflow-hidden rounded-xl shadow-xl backdrop-blur-md border border-white/20
+        ${colors.bg} ${colors.text}
+        min-w-[320px] max-w-[400px]
+      `}
+      style={{ zIndex: 1000 - index }}
+    >
+      {/* Progress bar */}
+      {(notification.duration || 5000) > 0 && (
+        <motion.div
+          className={`absolute bottom-0 left-0 h-1 ${colors.progress}`}
+          initial={{ width: '100%' }}
+          animate={{ width: `${progress}%` }}
+          transition={{ ease: 'linear' }}
+        />
+      )}
+
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          {/* Icon */}
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+            className={`flex-shrink-0 p-1.5 rounded-full bg-white/20 ${colors.icon}`}
+          >
+            <IconComponent className="w-4 h-4" />
+          </motion.div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <motion.h4 
+              className="text-sm font-bold tracking-wide"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+              {notification.title}
+            </motion.h4>
+            <motion.p 
+              className="text-xs mt-1 opacity-90 leading-relaxed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              {notification.message}
+            </motion.p>
           </div>
+
+          {/* Close button */}
+          <motion.button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove(notification.id);
+            }}
+            className="flex-shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.25 }}
+            aria-label="Close notification"
+          >
+            <FiX className="w-4 h-4" />
+          </motion.button>
         </div>
-      ))}
+      </div>
+
+      {/* Subtle shine effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        initial={{ x: '-100%' }}
+        animate={{ x: '100%' }}
+        transition={{ 
+          duration: 1.5, 
+          delay: 0.3,
+          repeat: Infinity, 
+          repeatDelay: 3
+        }}
+        style={{ transform: 'skewX(-20deg)' }}
+      />
+    </motion.div>
+  );
+};
+
+export const NotificationContainer: React.FC<NotificationContainerProps> = ({ 
+  notifications, 
+  onRemove 
+}) => {
+  return (
+    <div className="fixed top-20 right-4 z-[9999] space-y-2 pointer-events-none">
+      <AnimatePresence mode="popLayout">
+        {notifications.map((notification, index) => (
+          <div key={notification.id} className="pointer-events-auto">
+            <ToastItem
+              notification={notification}
+              onRemove={onRemove}
+              index={index}
+            />
+          </div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 };
