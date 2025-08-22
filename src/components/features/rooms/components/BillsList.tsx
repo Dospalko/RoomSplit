@@ -1,6 +1,6 @@
 import React from 'react';
-import { Bill, Member, fmt } from '../types';
-import { BillCardEnhanced } from './BillCardEnhanced';
+import { Bill, Member, fmt } from '@/types';
+import { BillCard } from './BillCard';
 
 interface BillsListProps {
   bills: Bill[];
@@ -51,7 +51,7 @@ export const BillsList: React.FC<BillsListProps> = ({
       ) : (
         <div className="space-y-6">
           {bills.map((bill) => (
-            <BillCardEnhanced
+            <BillCard
               key={bill.id}
               bill={bill}
               memberNameById={memberNameById}

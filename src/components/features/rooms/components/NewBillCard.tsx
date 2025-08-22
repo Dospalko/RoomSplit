@@ -5,7 +5,7 @@ import { CategoryTagSelector } from './CategoryTagSelector';
 interface NewBillCardProps {
   members: Member[];
   roomId: number;
-  onAddBill: (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta, categoryId?: number, tagIds?: number[]) => Promise<void>;
+  onAddBill: (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta | null, categoryId?: number, tagIds?: number[]) => Promise<void>;
 }
 
 export const NewBillCard: React.FC<NewBillCardProps> = ({ members, roomId, onAddBill }) => {
@@ -25,7 +25,7 @@ export const NewBillCard: React.FC<NewBillCardProps> = ({ members, roomId, onAdd
 
     setIsSubmitting(true);
     try {
-      let meta: BillMeta = null;
+      let meta: BillMeta | null = null;
 
       if (rule === 'PERCENT') {
         const percents: Record<number, number> = {};

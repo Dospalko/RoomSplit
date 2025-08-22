@@ -50,6 +50,8 @@ export interface BillMeta {
   weights?: Record<string, number>;
 }
 
+export type BillMetadata = BillMeta | null;
+
 export interface Share {
   id: number;
   memberId: number;
@@ -66,6 +68,7 @@ export interface Category {
   icon?: string;
   roomId: number;
   createdAt: Date;
+  _count?: { bills: number };
 }
 
 export interface Tag {
@@ -74,6 +77,7 @@ export interface Tag {
   color: string;
   roomId: number;
   createdAt: Date;
+  _count?: { billTags: number };
 }
 
 export interface BillTag {
@@ -145,14 +149,9 @@ export interface MemberParams extends ApiParams {
 // ========================================
 
 export interface RoomSummary {
-  totalExpenses: number;
-  yourShare: number;
-  unpaidBills: number;
-  memberCount: number;
-  recentActivity: {
-    billsThisMonth: number;
-    lastActivity: Date;
-  };
+  period: string;
+  totalCents: number;
+  perMember: Record<string, { name: string; cents: number }>;
 }
 
 // ========================================

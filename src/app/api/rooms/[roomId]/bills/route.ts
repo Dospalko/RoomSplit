@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { z } from "zod";
-import { getAuthenticatedUser, verifyRoomAccess, verifyRoomOwnership } from "@/server/auth";
+import { getAuthenticatedUser, verifyRoomAccess } from "@/server/auth";
 
 type Params = { params: Promise<{ roomId: string }> };
 

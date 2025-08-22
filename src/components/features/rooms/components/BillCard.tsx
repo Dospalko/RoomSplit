@@ -1,14 +1,14 @@
 import React from 'react';
-import { Bill, fmt } from '../types';
+import { Bill,fmt } from '@/types';
 
-interface BillCardEnhancedProps {
+interface BillCardProps {
   bill: Bill;
   onMarkPaid: (shareId: number, paid: boolean) => void;
   onDeleteBill: (billId: number) => void;
   memberNameById: Record<number, string>;
 }
 
-export const BillCardEnhanced: React.FC<BillCardEnhancedProps> = ({
+export const BillCard: React.FC<BillCardProps> = ({
   bill,
   onMarkPaid,
   onDeleteBill,
@@ -48,13 +48,15 @@ export const BillCardEnhanced: React.FC<BillCardEnhancedProps> = ({
               )}
               
               {bill.billTags && bill.billTags.map((billTag) => (
-                <div
-                  key={billTag.id}
-                  className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
-                  style={{ backgroundColor: billTag.tag.color }}
-                >
-                  {billTag.tag.name}
-                </div>
+                billTag.tag && (
+                  <div
+                    key={billTag.id}
+                    className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                    style={{ backgroundColor: billTag.tag.color }}
+                  >
+                    {billTag.tag.name}
+                  </div>
+                )
               ))}
             </div>
             

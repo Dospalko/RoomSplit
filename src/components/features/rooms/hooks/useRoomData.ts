@@ -177,7 +177,7 @@ export const useRoomData = ({ rid, period, addNotification }: UseRoomDataProps) 
     load();
   };
 
-  const addBill = async (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta, categoryId?: number, tagIds?: number[]) => {
+  const addBill = async (title: string, amount: string, period: string, rule: BillRule, meta: BillMeta | null, categoryId?: number, tagIds?: number[]) => {
     const basicError = validateBillData(title, amount, period, members);
     if (basicError) {
       addNotification('error', 'Invalid Bill Data', basicError);

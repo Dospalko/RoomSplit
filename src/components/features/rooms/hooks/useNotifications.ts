@@ -6,7 +6,7 @@ export const useNotifications = () => {
 
   const addNotification = useCallback((type: NotificationType, title: string, message: string, duration: number = 5000) => {
     const id = Math.random().toString(36).substr(2, 9);
-    const notification: Notification = { id, type, title, message, duration };
+    const notification: Notification = { id, type, title, message, duration, timestamp: new Date() };
     
     setNotifications(prev => [...prev, notification]);
     
