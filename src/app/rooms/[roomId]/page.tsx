@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ExpenseAnalytics } from "@/components";
 
 import { useRoomData } from "@/components/features/rooms/hooks/useRoomData";
+import { useNotifications } from "@/components/features/rooms/hooks/useNotifications";
+import { NotificationContainer } from "@/components/features/rooms/components/NotificationContainer";
 import { RoomHeader } from "@/components/features/rooms/components/RoomHeader";
 import { MembersCard } from "@/components/features/rooms/components/MembersCard";
 import { NewBillCard } from "@/components/features/rooms/components/NewBillCard";
@@ -19,6 +21,9 @@ export default function RoomDetail() {
   const rid = Number(roomId);
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'settings'>('overview');
   const currentPeriod = new Date().toISOString().slice(0, 7);
+
+  // Add notification system
+  const { notifications, addNotification, removeNotification } = useNotifications();
 
   const {
     authLoading,
@@ -36,10 +41,7 @@ export default function RoomDetail() {
   } = useRoomData({ 
     rid, 
     period: currentPeriod, 
-    addNotification: (type, title, message) => {
-      // Simple console logging for room pages since we only want notifications on main page
-      console.log(`${type.toUpperCase()}: ${title} - ${message}`);
-    }
+    addNotification // Use the real notification function now
   });
 
   // Loading state
@@ -317,6 +319,12 @@ export default function RoomDetail() {
           )}
         </div>
       </div>
+
+      {/* Notification Container */}
+      <NotificationContainer 
+        notifications={notifications} 
+        onRemove={removeNotification} 
+      />
     </div>
   );
 }
